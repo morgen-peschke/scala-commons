@@ -12,7 +12,7 @@ lazy val root =
     .dependsOn(scalaCommons)
     ...
 
-lazy val scalaCommons = RootProject(uri("git://github.com/morgen-peschke/scala-commons.git#master"))
+lazy val scalaCommons = RootProject(uri("git://github.com/morgen-peschke/scala-commons.git#v1.0.0"))
 ```
 
 ## Highlights
