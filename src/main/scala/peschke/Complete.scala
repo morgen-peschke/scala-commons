@@ -27,7 +27,7 @@ package peschke
  * def getValue: Future[Int] = Future(1)
  * def getOtherValue: Future[Int] = Future(2)
  *
- * def doSideEffectSync(a: Int, b: Int): Unit = println(s"Done: ${a + b}")
+ * def doSideEffectSync(a: Int, b: Int): Unit = println(s"Done: \${a + b}")
  *
  * def syncVersion: Future[Unit] =
  *   for {
@@ -37,7 +37,7 @@ package peschke
  *
  * def doSideEffectAsync(a: Int, b: Int): Future[Unit] = Future {
  *   Thread.sleep(10000)
- *   println(s"Done: ${a + b}")
+ *   println(s"Done: \${a + b}")
  * }
  *
  * def asyncVersion: Future[Unit] =

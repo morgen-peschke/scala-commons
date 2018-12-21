@@ -4,7 +4,7 @@ name := "Common Libraries"
 lazy val root =
   (project in file("."))
     .settings(
-      version := "1.0.0",
+      version := "1.0.1",
       scalaVersion := "2.12.3",
       crossScalaVersions := Seq("2.11.8"),
       scalacOptions ++= Seq(
@@ -20,6 +20,7 @@ lazy val root =
         "-Ywarn-unused-import",
         "-Ywarn-value-discard",
         "-Xfatal-warnings"),
+      scalacOptions in (Compile, doc) += s"-doc-external-doc:${scalaInstance.value.libraryJar}#http://www.scala-lang.org/api/${scalaVersion.value}/",
       scapegoatVersion := "1.3.0",
       scapegoatReports := Seq("html"),
       coverageMinimum := 80,

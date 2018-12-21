@@ -12,7 +12,15 @@ lazy val root =
     .dependsOn(scalaCommons)
     ...
 
-lazy val scalaCommons = RootProject(uri("git://github.com/morgen-peschke/scala-commons.git#v1.0.0"))
+lazy val scalaCommons = RootProject(uri("git://github.com/morgen-peschke/scala-commons.git#v1.0.1"))
+```
+
+[JitPack](https://jitpack.io/) is another (possibly better) option:
+
+```sbtshell
+resolvers += "jitpack" at "https://jitpack.io"
+
+libraryDependencies += "com.github.morgen-peschke" % "scala-commons" % "v1.0.1"	
 ```
 
 ## Highlights
