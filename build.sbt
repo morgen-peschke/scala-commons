@@ -4,7 +4,7 @@ name := "Common Libraries"
 lazy val root =
   (project in file("."))
     .settings(
-      version := "1.0.0",
+      version := "1.0.1",
       scalaVersion := "2.12.3",
       crossScalaVersions := Seq("2.11.8"),
       scalacOptions ++= Seq(
