@@ -20,6 +20,7 @@ lazy val root =
         "-Ywarn-unused-import",
         "-Ywarn-value-discard",
         "-Xfatal-warnings"),
+      scalacOptions in (Compile, doc) += s"-doc-external-doc:${scalaInstance.value.libraryJar}#http://www.scala-lang.org/api/${scalaVersion.value}/",
       scapegoatVersion := "1.3.0",
       scapegoatReports := Seq("html"),
       coverageMinimum := 80,
