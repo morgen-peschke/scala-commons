@@ -1,9 +1,23 @@
 import mill._, scalalib._, scalafmt._
+import mill.scalalib.publish._
 
 val Scala12 = "2.12.16"
 val Scala13 = "2.13.8"
 
-trait CommonModule extends CrossScalaModule with ScalafmtModule {
+trait CommonModule extends CrossScalaModule with ScalafmtModule with PublishModule {
+  def publishVersion = "0.0.1"
+
+  def pomSettings = PomSettings(
+    description = "Scala Commons - common utilities for Scala projects",
+    organization = "com.github.morgen-peschke",
+    url = "https://github.com/morgen-peschke/scala-commons",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("morgen-peschke", "scala-commons"),
+    developers = Seq(
+      Developer("morgen-peschke", "Morgen Peschke", "https://github.com/morgen-peschke")
+    )
+  )
+
   def crossScalaVersion: String
 
   def commonScalacOptions = Seq(
@@ -29,15 +43,22 @@ trait CommonModule extends CrossScalaModule with ScalafmtModule {
   }
 
   def scalacOptions = commonScalacOptions ++ versionSpecificOptions(crossScalaVersion)
+
+  def scalaDocOptions = Seq("-no-link-warnings")
 }
 
 object core extends Cross[CoreModule](Scala12, Scala13)
 class CoreModule(val crossScalaVersion: String)
-  extends CommonModule
+  extends CommonModule {
+
+  def artifactName = "commons-core"
+}
 
 object collections extends Cross[CollectionsModule](Scala12, Scala13)
 class CollectionsModule(val crossScalaVersion: String)
   extends CommonModule {
+
+  def artifactName = "commons-collections"
 
   def moduleDeps = Seq(core(crossScalaVersion))
 
