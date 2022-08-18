@@ -66,3 +66,15 @@ class CollectionsModule(val crossScalaVersion: String)
     def ivyDeps = Agg(ivy"org.scalatest::scalatest:3.2.13")
   }
 }
+
+object scalacheck extends Cross[ScalaCheckModule](Scala12, Scala13)
+class ScalaCheckModule(val crossScalaVersion: String)
+  extends CommonModule {
+
+  override def artifactName = "commons-scalacheck"
+
+  override def ivyDeps = Agg(
+    ivy"org.typelevel::cats-core:2.7.0",
+    ivy"org.scalacheck::scalacheck:1.16.0"
+  )
+}
