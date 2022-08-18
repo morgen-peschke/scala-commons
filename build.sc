@@ -80,7 +80,7 @@ class CollectionsModule(val crossScalaVersion: String)
   extends CommonModule {
 
   override def artifactName = "commons-collections"
-  
+
   object test extends Tests with TestModule.ScalaTest {
 
     override def moduleDeps = super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
