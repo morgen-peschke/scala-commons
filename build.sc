@@ -29,7 +29,8 @@ trait CommonModule extends CrossScalaModule with ScalafmtModule with PublishModu
     "-Ywarn-unused",
     "-Ywarn-dead-code",
     "-Ywarn-value-discard",
-    "-Xfatal-warnings"
+    "-Xfatal-warnings",
+    "-language:higherKinds"
   )
 
   def versionSpecificOptions(version: String) = version match {
@@ -51,18 +52,69 @@ object core extends Cross[CoreModule](Scala12, Scala13)
 class CoreModule(val crossScalaVersion: String)
   extends CommonModule {
 
-  def artifactName = "commons-core"
+  override def artifactName = "commons-core"
+
+  override def ivyDeps = Agg(
+    ivy"org.typelevel::cats-core:2.7.0",
+    ivy"org.rudogma::supertagged:2.0-RC2",
+    ivy"org.typelevel::cats-parse:0.3.7"
+  )
+
+  object test extends Tests with TestModule.ScalaTest {
+
+    override def moduleDeps = super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
+
+    override def ivyDeps = Agg(
+      ivy"org.scalacheck::scalacheck:1.16.0",
+      ivy"org.scalatest::scalatest:3.2.13",
+      ivy"org.scalatest::scalatest-wordspec:3.2.13",
+      ivy"org.scalatest::scalatest-propspec:3.2.13",
+      ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0",
+      ivy"org.python:jython-slim:2.7.2"
+    )
+  }
 }
 
 object collections extends Cross[CollectionsModule](Scala12, Scala13)
 class CollectionsModule(val crossScalaVersion: String)
   extends CommonModule {
 
-  def artifactName = "commons-collections"
-
-  def moduleDeps = Seq(core(crossScalaVersion))
+  override def artifactName = "commons-collections"
 
   object test extends Tests with TestModule.ScalaTest {
-    def ivyDeps = Agg(ivy"org.scalatest::scalatest:3.2.13")
+
+    override def moduleDeps = super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
+
+    override def ivyDeps = Agg(
+      ivy"org.scalacheck::scalacheck:1.16.0",
+      ivy"org.scalatest::scalatest:3.2.13",
+      ivy"org.scalatest::scalatest-wordspec:3.2.13",
+      ivy"org.scalatest::scalatest-propspec:3.2.13",
+      ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0",
+      ivy"org.python:jython-slim:2.7.2"
+    )
   }
+}
+
+object scalacheck extends Cross[ScalaCheckModule](Scala12, Scala13)
+class ScalaCheckModule(val crossScalaVersion: String)
+  extends CommonModule {
+
+  override def artifactName = "commons-scalacheck"
+
+  override def ivyDeps = Agg(
+    ivy"org.typelevel::cats-core:2.7.0",
+    ivy"org.scalacheck::scalacheck:1.16.0"
+  )
+}
+
+object decline extends Cross[DeclineModule](Scala12, Scala13)
+class DeclineModule(val crossScalaVersion: String)
+  extends CommonModule {
+
+  override def artifactName = "commons-decline"
+
+  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
+
+  override def ivyDeps = Agg(ivy"com.monovore::decline:2.3.0")
 }
