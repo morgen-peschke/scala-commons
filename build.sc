@@ -107,3 +107,14 @@ class ScalaCheckModule(val crossScalaVersion: String)
     ivy"org.scalacheck::scalacheck:1.16.0"
   )
 }
+
+object decline extends Cross[DeclineModule](Scala12, Scala13)
+class DeclineModule(val crossScalaVersion: String)
+  extends CommonModule {
+
+  override def artifactName = "commons-decline"
+
+  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
+
+  override def ivyDeps = Agg(ivy"com.monovore::decline:2.3.0")
+}
