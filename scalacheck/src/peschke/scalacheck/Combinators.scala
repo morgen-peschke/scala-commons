@@ -81,7 +81,8 @@ object Combinators {
    * values produced by this [[Gen]]
    */
   def choose(range: Range): Gen[Int] =
-    Gen.chooseNum(0, range.length).map { stepCount =>
+    if (range.isEmpty) Gen.fail
+    else Gen.chooseNum(0, range.length - 1).map { stepCount =>
       range.start + (stepCount * range.step)
     }
 
