@@ -22,7 +22,8 @@ object Slicer {
   /** Return the indices described by `slice`
     *
     * Should return identical results as
-    * `slice(start,end,step).indices(maxIndex)`
+    * `slice(start,end,step).indices(maxIndex)` and conform to
+    g*  https://docs.python.org/dev/library/stdtypes.html#sequence-types-list-tuple-range
     */
   def indices(slice: Slice, maxIndex: Long): NumericRange[Long] = {
     val step     = slice.step
@@ -33,13 +34,14 @@ object Slicer {
         .startOpt
         .map { s => (if (s >= 0L) s else maxIndex + s).max(0L) }
         .getOrElse(if (reversed) maxIndex - 1L else 0L)
+        .min(if (reversed) maxIndex - 1 else maxIndex)
 
     val end =
       slice
         .endOpt
         .map { e => (if (e >= 0L) e else maxIndex + e).max(-1L) }
         .getOrElse(if (reversed) -1L else maxIndex)
-        .min(maxIndex)
+        .min(if (reversed) maxIndex - 1 else maxIndex)
 
     start until end by step
   }
