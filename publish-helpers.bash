@@ -21,7 +21,7 @@ function __publish.cmd () {
 	return 68
     fi
     
-    printf 'mill mill.scalalib.PublishModule/publishAll __.publishArtifacts "$(__sonatype.credentials "%s")" --gpgArgs --passphrase="$(__sonatype.gpg "%s")",--batch,--yes,-a,-b' "$config" "$config"
+    printf 'mill mill.scalalib.PublishModule/publishAll __.publishArtifacts "$(__sonatype.credentials "%s")" --gpgArgs --passphrase="$(__sonatype.gpg "%s")",--batch,--yes,-a,-b --release true' "$config" "$config"
 }
 # Usage: eval $(push-to-sonatype credentials.json)
 alias push-to-sonatype='__publish.cmd'
