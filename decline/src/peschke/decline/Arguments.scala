@@ -13,5 +13,5 @@ object Arguments {
     Argument.from("[<start>:<end>:<step>]") { raw =>
       parser.parse(raw).leftMap(_.map(_.show).toNonEmptyList)
     }
-  }g
+  }
 }
