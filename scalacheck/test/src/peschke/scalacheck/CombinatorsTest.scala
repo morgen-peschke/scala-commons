@@ -2,9 +2,10 @@ package peschke.scalacheck
 
 import org.scalacheck.Gen
 import org.scalatest.Inspectors
+import org.scalatest.prop.TableDrivenPropertyChecks
 import peschke.PropSpec
 
-class CombinatorsTest extends PropSpec {
+class CombinatorsTest extends PropSpec with TableDrivenPropertyChecks {
   private val bounds =
     for {
       a <- Gen.chooseNum(Int.MinValue, Int.MaxValue - 100)
@@ -50,7 +51,7 @@ class CombinatorsTest extends PropSpec {
 
     val reallyLong =
       for {
-        a <- Gen.chooseNum(Int.MinValue, Int.MinValue - 10)
+        a <- Gen.chooseNum(Int.MinValue, Int.MinValue + 10)
         b <- Gen.chooseNum(Int.MaxValue - 10, Int.MaxValue)
       } yield (a, b, "really long ranges")
 
@@ -59,6 +60,29 @@ class CombinatorsTest extends PropSpec {
         val gen = Combinators.ranges(start, end)
         val values = List.fill(10)(gen.sample.value)
         Inspectors.forAll(values)(_.length)
+    }
+  }
+
+  private val problematicBounds = Table(
+    ("start", "end"),
+    (Int.MaxValue, Int.MaxValue),
+    (Int.MinValue, Int.MinValue),
+    (Int.MinValue, Int.MaxValue)
+  )
+
+  property("Combinators.inclusiveRanges should act appropriately for problematic input") {
+    forAll(problematicBounds) { (start, end) =>
+        val gen = Combinators.inclusiveRanges(start, end)
+        val values = List.fill(10)(gen.sample.value)
+        Inspectors.forAll(values)(_.length)
+    }
+  }
+
+  property("Combinators.exclusiveRanges should act appropriately for problematic input") {
+    forAll(problematicBounds) { (start, end) =>
+      val gen = Combinators.exclusiveRanges(start, end)
+      val values = List.fill(10)(gen.sample.value)
+      Inspectors.forAll(values)(_.length)
     }
   }
 
