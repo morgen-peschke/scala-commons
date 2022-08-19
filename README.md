@@ -21,7 +21,7 @@ def ivyDeps = Agg(
   ivy"com.github.morgen-peschke::commons-collections:0.0.1",
   ivy"com.github.morgen-peschke::commons-decline:0.0.1",
   ivy"com.github.morgen-peschke::commons-scalacheck:0.0.1"
-)g
+)
 ```
 
 ## SubModules
