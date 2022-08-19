@@ -5,7 +5,7 @@ val Scala12 = "2.12.16"
 val Scala13 = "2.13.8"
 
 trait CommonModule extends CrossScalaModule with ScalafmtModule with PublishModule {
-  def publishVersion = "0.0.1"
+  def publishVersion = "0.1.0"
 
   def pomSettings = PomSettings(
     description = "Scala Commons - common utilities for Scala projects",
