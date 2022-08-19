@@ -8,7 +8,9 @@ Common utility libraries for Scala, mostly small stuff I don't want to have mult
 ```
 libraryDependencies += Seq(
   "com.github.morgen-peschke" % "commons-core" % "0.0.1",
-  "com.github.morgen-peschke" % "commons-collections" % "0.0.1"
+  "com.github.morgen-peschke" % "commons-collections" % "0.0.1",
+  "com.github.morgen-peschke" % "commons-decline" % "0.0.1",
+  "com.github.morgen-peschke" % "commons-scalacheck" % "0.0.1" % Test
 )
 ```
 
@@ -16,8 +18,10 @@ libraryDependencies += Seq(
 ```
 def ivyDeps = Agg(
   ivy"com.github.morgen-peschke::commons-core:0.0.1",
-  ivy"com.github.morgen-peschke::commons-collections:0.0.1"
-)
+  ivy"com.github.morgen-peschke::commons-collections:0.0.1",
+  ivy"com.github.morgen-peschke::commons-decline:0.0.1",
+  ivy"com.github.morgen-peschke::commons-scalacheck:0.0.1"
+)g
 ```
 
 ## SubModules
