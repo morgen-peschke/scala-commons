@@ -22,8 +22,8 @@ object Slicer {
   /** Return the indices described by `slice`
     *
     * Should return identical results as
-    * `slice(start,end,step).indices(maxIndex)` and conform to
-    g*  https://docs.python.org/dev/library/stdtypes.html#sequence-types-list-tuple-range
+    * `slice(start,end,step).indices(maxIndex)` and conform to g*
+    * https://docs.python.org/dev/library/stdtypes.html#sequence-types-list-tuple-range
     */
   def indices(slice: Slice, maxIndex: Long): NumericRange[Long] = {
     val step     = slice.step
