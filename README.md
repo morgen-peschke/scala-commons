@@ -7,20 +7,20 @@ Common utility libraries for Scala, mostly small stuff I don't want to have mult
 ### SBT
 ```
 libraryDependencies += Seq(
-  "com.github.morgen-peschke" % "commons-core" % "0.0.1",
-  "com.github.morgen-peschke" % "commons-collections" % "0.0.1",
-  "com.github.morgen-peschke" % "commons-decline" % "0.0.1",
-  "com.github.morgen-peschke" % "commons-scalacheck" % "0.0.1" % Test
+  "com.github.morgen-peschke" % "commons-core" % "0.1.0",
+  "com.github.morgen-peschke" % "commons-collections" % "0.1.0",
+  "com.github.morgen-peschke" % "commons-decline" % "0.1.0",
+  "com.github.morgen-peschke" % "commons-scalacheck" % "0.1.0" % Test
 )
 ```
 
 ### Mill
 ```
 def ivyDeps = Agg(
-  ivy"com.github.morgen-peschke::commons-core:0.0.1",
-  ivy"com.github.morgen-peschke::commons-collections:0.0.1",
-  ivy"com.github.morgen-peschke::commons-decline:0.0.1",
-  ivy"com.github.morgen-peschke::commons-scalacheck:0.0.1"
+  ivy"com.github.morgen-peschke::commons-core:0.1.0",
+  ivy"com.github.morgen-peschke::commons-collections:0.1.0",
+  ivy"com.github.morgen-peschke::commons-decline:0.1.0",
+  ivy"com.github.morgen-peschke::commons-scalacheck:0.1.0"
 )
 ```
 
