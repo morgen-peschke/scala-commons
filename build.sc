@@ -106,6 +106,15 @@ class ScalaCheckModule(val crossScalaVersion: String)
     ivy"org.typelevel::cats-core:2.7.0",
     ivy"org.scalacheck::scalacheck:1.16.0"
   )
+
+  object test extends Tests with TestModule.ScalaTest {
+    override def ivyDeps = Agg(
+      ivy"org.scalacheck::scalacheck:1.16.0",
+      ivy"org.scalatest::scalatest:3.2.13",
+      ivy"org.scalatest::scalatest-propspec:3.2.13",
+      ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0"
+    )
+  }
 }
 
 object decline extends Cross[DeclineModule](Scala12, Scala13)
