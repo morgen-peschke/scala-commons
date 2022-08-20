@@ -8,7 +8,7 @@ import org.scalacheck.Gen
 object syntax {
   implicit final class ScalaCommonsRangeToGenOps(private val range: Range)
       extends AnyVal {
-    def choose: Gen[Int] = Combinators.choose(range)
+    def choose: Gen[Int] = RangeGens.choose(range)
   }
 
   implicit final class ScalaCommonsGenOpsEntry[A](private val gen: Gen[A])
