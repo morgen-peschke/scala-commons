@@ -1,10 +1,12 @@
+import $ivy.`com.goyeau::mill-scalafix::0.2.10`
+import com.goyeau.mill.scalafix.ScalafixModule
 import mill._, scalalib._, scalafmt._
 import mill.scalalib.publish._
 
 val Scala12 = "2.12.16"
 val Scala13 = "2.13.8"
 
-trait CommonModule extends CrossScalaModule with ScalafmtModule with PublishModule {
+trait CommonModule extends CrossScalaModule with ScalafmtModule with ScalafixModule with PublishModule {
   def publishVersion = "0.1.0"
 
   def pomSettings = PomSettings(
@@ -46,6 +48,8 @@ trait CommonModule extends CrossScalaModule with ScalafmtModule with PublishModu
   def scalacOptions = commonScalacOptions ++ versionSpecificOptions(crossScalaVersion)
 
   def scalaDocOptions = Seq("-no-link-warnings")
+
+  def scalafixIvyDeps = Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
 }
 
 object core extends Cross[CoreModule](Scala12, Scala13)

@@ -1,9 +1,11 @@
 package peschke.scalacheck
 
+import cats.Eq
+import cats.syntax.eq._
 import org.scalacheck.Gen
 import peschke.Convertible
-import peschke.numeric.Bounded
 import peschke.Convertible.syntax._
+import peschke.numeric.Bounded
 
 import scala.collection.immutable.NumericRange
 
@@ -12,6 +14,9 @@ import scala.collection.immutable.NumericRange
   */
 trait NumericRangeGens {
   private val MaxLength = BigInt(Int.MaxValue - 1)
+
+  // Ok to throw in this case, all we're doing is adding context to an existing exception (which we can't handle anyway)
+  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   private def buildRangeSafely[A](start: A, end: A, step: A, inclusive: Boolean)
                                  (
                                      implicit I: Integral[A],
@@ -27,7 +32,7 @@ trait NumericRangeGens {
     val safeLength = length.min(MaxLength)
     val goodLength = safeLength.convertOpt[A].getOrElse(I.fromInt(Int.MaxValue))
     val safeEnd =
-      if (safeLength == length) end else start + (goodLength * normalizedStep)
+      if (safeLength === length) end else start + (goodLength * normalizedStep)
 
     try {
       if (inclusive) NumericRange.inclusive(start, safeEnd, normalizedStep)
@@ -73,10 +78,11 @@ trait NumericRangeGens {
                                    C:          Gen.Choose[A],
                                    ToBigInt:   Convertible[A, BigInt],
                                    ToA:        Convertible[BigInt, Option[A]],
-                                   B:          Bounded[A])
+                                   B:          Bounded[A],
+                                   E:          Eq[A])
     : Gen[NumericRange[A]] = {
     import I.{mkNumericOps, mkOrderingOps}
-    val safeMax = if (max == B.maximum) max - I.one else max
+    val safeMax = if (max === B.maximum) max - I.one else max
     val safeMin = if (safeMax < min) safeMax - I.one else min
     for {
       start <- Gen.chooseNum(safeMin, safeMax)
@@ -96,7 +102,8 @@ trait NumericRangeGens {
                           C:          Gen.Choose[A],
                           ToBigInt:   Convertible[A, BigInt],
                           ToA:        Convertible[BigInt, Option[A]],
-                          B:          Bounded[A])
+                          B:          Bounded[A],
+                          E:          Eq[A])
     : Gen[NumericRange[A]] =
     Gen.oneOf(
       inclusiveNumericRanges(min, max),

@@ -1,5 +1,6 @@
 package peschke.scalacheck
 
+import cats.syntax.eq._
 import org.scalacheck.Gen
 
 /** Various [[Gen]] factories to make working with [[Range]] and
@@ -48,7 +49,7 @@ trait RangeGens {
     *   Inclusive maximum for [[Range.end]]
     */
   def exclusiveRanges(min: Int, max: Int): Gen[Range] = {
-    val safeMax = if (max == Int.MaxValue) max - 1 else max
+    val safeMax = if (max === Int.MaxValue) max - 1 else max
     val safeMin = if (safeMax < min) safeMax - 1 else min
     for {
       start <- Gen.chooseNum(safeMin, safeMax)

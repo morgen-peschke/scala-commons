@@ -1,6 +1,7 @@
 package peschke
 
-import cats.{Applicative, Functor}
+import cats.Applicative
+import cats.Functor
 import cats.syntax.all._
 
 /** Provides a more principled and visible way of managing implicit conversions.
@@ -45,20 +46,20 @@ object Convertible extends ConvertibleLifts {
   }
 
   // These are handy because Numeric does not provide a standard conversion to BigInt
-  implicit final val IntToBigInt:  Convertible[Int, BigInt]  = BigInt(_)
-  implicit final val LongToBigInt: Convertible[Long, BigInt] = BigInt(_)
-  implicit final val CharToBigInt: Convertible[Char, BigInt] =
+  implicit val IntToBigInt:  Convertible[Int, BigInt]  = BigInt(_)
+  implicit val LongToBigInt: Convertible[Long, BigInt] = BigInt(_)
+  implicit val CharToBigInt: Convertible[Char, BigInt] =
     IntToBigInt.contraMap(_.toInt)
-  implicit final val ShortToBigInt: Convertible[Short, BigInt] =
+  implicit val ShortToBigInt: Convertible[Short, BigInt] =
     IntToBigInt.contraMap(_.toInt)
 
-  implicit final val BigIntToBigInt: Convertible[BigInt, BigInt] = identity(_)
-  implicit final val BigIntToInt: Convertible[BigInt, Option[Int]] = b =>
+  implicit val BigIntToBigInt: Convertible[BigInt, BigInt] = identity(_)
+  implicit val BigIntToInt: Convertible[BigInt, Option[Int]] = b =>
     if (b.isValidInt) Some(b.toInt) else None
-  implicit final val BigIntToLong: Convertible[BigInt, Option[Long]] = b =>
+  implicit val BigIntToLong: Convertible[BigInt, Option[Long]] = b =>
     if (b.isValidLong) Some(b.toLong) else None
-  implicit final val BigIntToChar: Convertible[BigInt, Option[Char]] = b =>
+  implicit val BigIntToChar: Convertible[BigInt, Option[Char]] = b =>
     if (b.isValidChar) Some(b.toChar) else None
-  implicit final val BigIntToShort: Convertible[BigInt, Option[Short]] = b =>
+  implicit val BigIntToShort: Convertible[BigInt, Option[Short]] = b =>
     if (b.isValidShort) Some(b.toShort) else None
 }
