@@ -3,12 +3,21 @@ package peschke.scalacheck
 import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyVector}
 import org.scalacheck.Gen
 
+import scala.collection.immutable.NumericRange
+
 /** Various helpers to make working with [[org.scalacheck.Gen]] a bit easier.
   */
 object syntax {
   implicit final class ScalaCommonsRangeToGenOps(private val range: Range)
       extends AnyVal {
     def choose: Gen[Int] = RangeGens.choose(range)
+  }
+
+  implicit final class ScalaCommonsNumericRangeToGenOps[A]
+    (private val range: NumericRange[A])
+      extends AnyVal {
+    def choose(implicit N: Numeric[A]): Gen[A] =
+      NumericRangeGens.chooseNumeric(range)
   }
 
   implicit final class ScalaCommonsGenOpsEntry[A](private val gen: Gen[A])

@@ -107,6 +107,8 @@ class ScalaCheckModule(val crossScalaVersion: String)
     ivy"org.scalacheck::scalacheck:1.16.0"
   )
 
+  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
+
   object test extends Tests with TestModule.ScalaTest {
     override def ivyDeps = Agg(
       ivy"org.scalacheck::scalacheck:1.16.0",
