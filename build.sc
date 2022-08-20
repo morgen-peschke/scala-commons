@@ -6,21 +6,8 @@ import mill.scalalib.publish._
 val Scala12 = "2.12.16"
 val Scala13 = "2.13.8"
 
-trait CommonModule extends CrossScalaModule with ScalafmtModule with ScalafixModule with PublishModule {
-  def publishVersion = "0.1.0"
-
-  def pomSettings = PomSettings(
-    description = "Scala Commons - common utilities for Scala projects",
-    organization = "com.github.morgen-peschke",
-    url = "https://github.com/morgen-peschke/scala-commons",
-    licenses = Seq(License.MIT),
-    versionControl = VersionControl.github("morgen-peschke", "scala-commons"),
-    developers = Seq(
-      Developer("morgen-peschke", "Morgen Peschke", "https://github.com/morgen-peschke")
-    )
-  )
-
-  def crossScalaVersion: String
+trait StyleModule extends ScalafmtModule with ScalafixModule {
+  def scalafixIvyDeps = Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
 
   def commonScalacOptions = Seq(
     "-encoding",
@@ -45,11 +32,38 @@ trait CommonModule extends CrossScalaModule with ScalafmtModule with ScalafixMod
     case _ => Seq()
   }
 
+  def crossScalaVersion: String
+
   def scalacOptions = commonScalacOptions ++ versionSpecificOptions(crossScalaVersion)
 
   def scalaDocOptions = Seq("-no-link-warnings")
+}
 
-  def scalafixIvyDeps = Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
+trait CommonModule extends CrossScalaModule with StyleModule with PublishModule {
+  def publishVersion = "0.1.0"
+
+  def pomSettings = PomSettings(
+    description = "Scala Commons - common utilities for Scala projects",
+    organization = "com.github.morgen-peschke",
+    url = "https://github.com/morgen-peschke/scala-commons",
+    licenses = Seq(License.MIT),
+    versionControl = VersionControl.github("morgen-peschke", "scala-commons"),
+    developers = Seq(
+      Developer("morgen-peschke", "Morgen Peschke", "https://github.com/morgen-peschke")
+    )
+  )
+
+  protected def outerCrossScalaVersion: String = crossScalaVersion
+}
+
+trait CommonTestModule extends TestModule.ScalaTest with StyleModule {
+  override def ivyDeps = Agg(
+    ivy"org.scalacheck::scalacheck:1.16.0",
+    ivy"org.scalatest::scalatest:3.2.13",
+    ivy"org.scalatest::scalatest-wordspec:3.2.13",
+    ivy"org.scalatest::scalatest-propspec:3.2.13",
+    ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0"
+  )
 }
 
 object core extends Cross[CoreModule](Scala12, Scala13)
@@ -64,18 +78,14 @@ class CoreModule(val crossScalaVersion: String)
     ivy"org.typelevel::cats-parse:0.3.7"
   )
 
-  object test extends Tests with TestModule.ScalaTest {
-
+  object test extends Tests with CommonTestModule {
     override def moduleDeps = super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
 
-    override def ivyDeps = Agg(
-      ivy"org.scalacheck::scalacheck:1.16.0",
-      ivy"org.scalatest::scalatest:3.2.13",
-      ivy"org.scalatest::scalatest-wordspec:3.2.13",
-      ivy"org.scalatest::scalatest-propspec:3.2.13",
-      ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0",
-      ivy"org.python:jython-slim:2.7.2"
-    )
+    override def ivyDeps = T {
+      super.ivyDeps() ++ Agg(ivy"org.python:jython-slim:2.7.2")
+    }
+
+    override def crossScalaVersion = outerCrossScalaVersion
   }
 }
 
@@ -85,18 +95,10 @@ class CollectionsModule(val crossScalaVersion: String)
 
   override def artifactName = "commons-collections"
 
-  object test extends Tests with TestModule.ScalaTest {
-
+  object test extends Tests with  CommonTestModule {
     override def moduleDeps = super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
 
-    override def ivyDeps = Agg(
-      ivy"org.scalacheck::scalacheck:1.16.0",
-      ivy"org.scalatest::scalatest:3.2.13",
-      ivy"org.scalatest::scalatest-wordspec:3.2.13",
-      ivy"org.scalatest::scalatest-propspec:3.2.13",
-      ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0",
-      ivy"org.python:jython-slim:2.7.2"
-    )
+    override def crossScalaVersion = outerCrossScalaVersion
   }
 }
 
@@ -113,13 +115,8 @@ class ScalaCheckModule(val crossScalaVersion: String)
 
   override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
 
-  object test extends Tests with TestModule.ScalaTest {
-    override def ivyDeps = Agg(
-      ivy"org.scalacheck::scalacheck:1.16.0",
-      ivy"org.scalatest::scalatest:3.2.13",
-      ivy"org.scalatest::scalatest-propspec:3.2.13",
-      ivy"org.scalatestplus::scalacheck-1-16:3.2.12.0"
-    )
+  object test extends Tests with CommonTestModule {
+    override def crossScalaVersion = outerCrossScalaVersion
   }
 }
 

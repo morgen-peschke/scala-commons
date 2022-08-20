@@ -47,8 +47,8 @@ class RangeGensTest extends PropSpec with TableDrivenPropertyChecks {
   property("RangeGens.ranges should not choke when asked to produce ranges with extreme bounds") {
     val closeToMax =
       for {
-        a <- Gen.chooseNum (Int.MaxValue - 10, Int.MaxValue)
-        b <- Gen.chooseNum (a, Int.MaxValue)
+        a <- Gen.chooseNum(Int.MaxValue - 10, Int.MaxValue)
+        b <- Gen.chooseNum(a, Int.MaxValue)
       } yield (a, b, "close to Int.MaxValue")
 
     val reallyLong =
@@ -59,7 +59,7 @@ class RangeGensTest extends PropSpec with TableDrivenPropertyChecks {
 
     forAll(Gen.oneOf(closeToMax, reallyLong)) {
       case (start, end, _) =>
-        val gen = ranges(start, end)
+        val gen    = ranges(start, end)
         val values = List.fill(10)(gen.sample.value)
         Inspectors.forAll(values)(_.length)
     }
@@ -72,17 +72,21 @@ class RangeGensTest extends PropSpec with TableDrivenPropertyChecks {
     (Int.MinValue, Int.MaxValue)
   )
 
-  property("RangeGens.inclusiveRanges should act appropriately for problematic input") {
+  property(
+    "RangeGens.inclusiveRanges should act appropriately for problematic input"
+  ) {
     forAll(problematicBounds) { (start, end) =>
-      val gen = inclusiveRanges(start, end)
+      val gen    = inclusiveRanges(start, end)
       val values = List.fill(10)(gen.sample.value)
       Inspectors.forAll(values)(_.length)
     }
   }
 
-  property("RangeGens.exclusiveRanges should act appropriately for problematic input") {
+  property(
+    "RangeGens.exclusiveRanges should act appropriately for problematic input"
+  ) {
     forAll(problematicBounds) { (start, end) =>
-      val gen = exclusiveRanges(start, end)
+      val gen    = exclusiveRanges(start, end)
       val values = List.fill(10)(gen.sample.value)
       Inspectors.forAll(values)(_.length)
     }
