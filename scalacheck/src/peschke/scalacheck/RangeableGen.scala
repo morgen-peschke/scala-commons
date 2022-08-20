@@ -1,6 +1,9 @@
 package peschke.scalacheck
 
-import cats.data.{Chain, NonEmptyChain, NonEmptyList, NonEmptyVector}
+import cats.data.Chain
+import cats.data.NonEmptyChain
+import cats.data.NonEmptyList
+import cats.data.NonEmptyVector
 import org.scalacheck.Gen
 
 /** A typeclass to define how to lift repeated values from a `Gen[A]` into some

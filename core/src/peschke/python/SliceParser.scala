@@ -1,10 +1,16 @@
 package peschke.python
 
-import cats.data.{EitherNec, NonEmptyChain, ValidatedNec}
+import cats.ApplicativeError
+import cats.Order
+import cats.Show
+import cats.data.EitherNec
+import cats.data.NonEmptyChain
+import cats.data.ValidatedNec
+import cats.parse.Numbers
+import cats.parse.Parser
 import cats.parse.Parser.Expectation
-import cats.parse.{Numbers, Parser, Parser0}
+import cats.parse.Parser0
 import cats.syntax.all._
-import cats.{ApplicativeError, Order, Show}
 import peschke.python.Slice._
 import peschke.python.SliceParser.ParseError._
 
@@ -60,16 +66,16 @@ object SliceParser {
     }
 
     private[SliceParser] object Names {
-      final val OpenBrace  = "open-brace"
-      final val CloseBrace = "close-brace"
-      final val Number     = "number"
-      final val Separator  = "separator"
-      final val StartGiven = "start-given"
-      final val StartSkip  = "start-skipped"
-      final val EndGiven   = "end-given"
-      final val EndSkip    = "end-skipped"
-      final val StepGiven  = "step-given"
-      final val StepSkip   = "step-skipped"
+      val OpenBrace  = "open-brace"
+      val CloseBrace = "close-brace"
+      val Number     = "number"
+      val Separator  = "separator"
+      val StartGiven = "start-given"
+      val StartSkip  = "start-skipped"
+      val EndGiven   = "end-given"
+      val EndSkip    = "end-skipped"
+      val StepGiven  = "step-given"
+      val StepSkip   = "step-skipped"
     }
   }
 
@@ -111,9 +117,9 @@ object SliceParser {
       case UnexpectedInput(_, _)       => 6
     }
 
-    implicit final val order: Order[ParseError] =
+    implicit val order: Order[ParseError] =
       Order.by(pe => (Index.raw(pe.index), priority(pe)))
-    implicit final val show: Show[ParseError] = Show.show {
+    implicit val show: Show[ParseError] = Show.show {
       case ExpectedOpenBrace(brace, index, context) =>
         s"$index :: expected '$brace' at: $context"
       case ExpectedCloseBrace(brace, index, context) =>

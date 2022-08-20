@@ -20,16 +20,16 @@ object Bounded {
     override val minimum: A = min
   }
 
-  implicit final val IntIsBounded: Bounded[Int] =
+  implicit val IntIsBounded: Bounded[Int] =
     from(Int.MinValue, Int.MaxValue)
-  implicit final val CharIsBounded: Bounded[Char] =
+  implicit val CharIsBounded: Bounded[Char] =
     from(Char.MinValue, Char.MaxValue)
-  implicit final val LongIsBounded: Bounded[Long] =
+  implicit val LongIsBounded: Bounded[Long] =
     from(Long.MinValue, Long.MaxValue)
-  implicit final val ShortIsBounded: Bounded[Short] =
+  implicit val ShortIsBounded: Bounded[Short] =
     from(Short.MinValue, Short.MaxValue)
-  implicit final val FloatIsBounded: Bounded[Float] =
+  implicit val FloatIsBounded: Bounded[Float] =
     from(Float.MinValue, Float.MaxValue)
-  implicit final val DoubleIsBounded: Bounded[Double] =
+  implicit val DoubleIsBounded: Bounded[Double] =
     from(Double.MinValue, Double.MaxValue)
 }
