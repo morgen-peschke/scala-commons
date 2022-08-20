@@ -13,6 +13,16 @@ import org.scalacheck.Gen
   *   parameterized because [[scala.Predef.String]] is also handy.
   */
 trait RangeableGen[A, B] {
+
+  /** Lift a [[org.scalacheck.Gen]] of `A` to an [[org.scalacheck.Gen]] of `B`
+    * by repeated application.
+    *
+    * @param count
+    *   the length of the resulting `B` is generated from `count`. Non-int
+    *   [[Range]] isn't supported because collection lengths must be ints.
+    * @param ga
+    *   Used to generate the parts of the resulting `B`
+    */
   def lift(count: Range, ga: Gen[A]): Gen[B]
 
   /** Use this [[RangeableGen]] to produce another [[RangeableGen]], via a
@@ -57,5 +67,5 @@ object RangeableGen {
     liftToNonEmptyChain[A].map(_.toNonEmptyVector)
 
   implicit val charToString: RangeableGen[Char, String] =
-    (count, ga) => Combinators.choose(count).flatMap(Gen.stringOfN(_, ga))
+    (count, ga) => RangeGens.choose(count).flatMap(Gen.stringOfN(_, ga))
 }
