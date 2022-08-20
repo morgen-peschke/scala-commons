@@ -72,4 +72,4 @@ Highlights include:
 
 ### `commons-decline`
 
-Instances for Decline, notably one for `Slice` as it tends to very handy for CLI utilities.
+Instances for Decline, notably one for `Slice` as it tends to be very handy for CLI utilities.
