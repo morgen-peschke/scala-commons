@@ -22,7 +22,10 @@ trait Convertible[In, Out] {
     convert(f(in))
 }
 
-trait ConvertibleLifts {
+trait ConvertibleNoOps {
+  implicit final def IdentityLift[A]: Convertible[A, A] = identity(_)
+}
+trait ConvertibleLifts extends ConvertibleNoOps {
   implicit final def ApplicativeLift[F[_]: Applicative, A, B]
     (implicit AB: Convertible[A, B])
     : Convertible[A, F[B]] =
