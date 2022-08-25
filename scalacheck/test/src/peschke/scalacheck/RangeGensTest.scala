@@ -2,10 +2,9 @@ package peschke.scalacheck
 
 import org.scalacheck.Gen
 import org.scalatest.Inspectors
-import org.scalatest.prop.TableDrivenPropertyChecks
 import peschke.PropSpec
 
-class RangeGensTest extends PropSpec with TableDrivenPropertyChecks {
+class RangeGensTest extends PropSpec {
   import RangeGens._
 
   private val bounds =

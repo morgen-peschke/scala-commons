@@ -11,8 +11,6 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 trait CommonSpec extends Matchers with EitherValues with OptionValues
 
-trait UnitSpec extends AnyWordSpec with CommonSpec
-
 trait PropSpec
     extends AnyPropSpec
     with CommonSpec

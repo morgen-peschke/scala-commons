@@ -2,13 +2,12 @@ package peschke.scalacheck
 
 import org.scalacheck.Gen
 import org.scalatest.Inspectors
-import org.scalatest.prop.TableDrivenPropertyChecks
 import peschke.PropSpec
 import peschke.scalacheck.NumericRangeGensLongTest.PrettyRange
 
 import scala.collection.immutable.NumericRange
 
-class NumericRangeGensLongTest extends PropSpec with TableDrivenPropertyChecks {
+class NumericRangeGensLongTest extends PropSpec {
   private val bounds =
     for {
       a <- Gen.chooseNum[Long](Long.MinValue, Long.MaxValue - 100L)
