@@ -79,10 +79,10 @@ import cats.{Hash, Monoid, Show}
   * Replacing it with Complete avoids this issue, as the incorrect code won't
   * compile.
   */
-sealed trait Complete {
+sealed trait Complete extends Product with Serializable {
   def upcast: Complete = this
 }
-object Complete extends Complete {
+case object Complete extends Complete {
   implicit val show: Show[Complete] = Show.show(_ => "Complete")
   implicit val hash: Hash[Complete] = Hash.fromUniversalHashCode[Complete]
 
