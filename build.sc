@@ -149,3 +149,16 @@ class DeclineModule(val crossScalaVersion: String) extends CommonModule {
   )
 }
 
+object shims extends Cross[ShimsModule](Scala12, Scala13)
+class ShimsModule(val crossScalaVersion: String) extends CommonModule {
+
+  override def artifactName = "commons-shims"
+
+  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
+
+  object test extends Tests with CommonTestModule {
+    override def crossScalaVersion: String = outerCrossScalaVersion
+
+    override def ivyDeps = Agg.from(WordSpec)
+  }
+}
