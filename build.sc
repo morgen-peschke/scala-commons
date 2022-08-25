@@ -40,7 +40,7 @@ trait StyleModule extends ScalafmtModule with ScalafixModule {
 }
 
 trait CommonModule extends CrossScalaModule with StyleModule with PublishModule {
-  def publishVersion = "0.1.0"
+  def publishVersion = "0.2.0"
 
   def pomSettings = PomSettings(
     description = "Scala Commons - common utilities for Scala projects",

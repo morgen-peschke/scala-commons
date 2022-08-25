@@ -1,5 +1,7 @@
 package peschke
 
+import cats.{Hash, Monoid, Show}
+
 /** Used as a replacement for returning Unit.
   *
   * The reason for this is to avoid certain type issues that come up in how
@@ -80,4 +82,12 @@ package peschke
 sealed trait Complete {
   def upcast: Complete = this
 }
-object Complete extends Complete
+object Complete extends Complete {
+  implicit val show: Show[Complete] = Show.show(_ => "Complete")
+  implicit val hash: Hash[Complete] = Hash.fromUniversalHashCode[Complete]
+
+  implicit val monoid: Monoid[Complete] = new Monoid[Complete] {
+    override def empty:                             Complete = Complete
+    override def combine(x: Complete, y: Complete): Complete = Complete
+  }
+}
