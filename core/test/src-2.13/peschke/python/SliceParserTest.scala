@@ -1,11 +1,14 @@
 package peschke.python
 
+import cats.data.NonEmptyChain
 import cats.syntax.all._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalatest.matchers.Matcher
 import peschke.PropSpec
 import peschke.python.Slice._
+import peschke.python.SliceParser.ErrorContext
+import peschke.python.SliceParser.Index
 import peschke.python.SliceParser.ParseError
 import peschke.python.SliceParserTest._
 import peschke.scalacheck.syntax._
@@ -20,13 +23,21 @@ class SliceParserTest extends PropSpec {
   val parse: Matcher[Test] = Matcher { test =>
     be(test.range.asRight).apply(rangeParser.parse(test.raw))
   }
+
+  val failToParse: Matcher[(String, ParseError)] = Matcher {
+    case (input, expected) =>
+      be(NonEmptyChain(expected).asLeft).apply(rangeParser.parse(input))
+  }
+
   val parsePrefix: Matcher[(Test, String)] = Matcher {
     case (test, suffix) =>
       be((test.range, suffix).asRight).apply(rangeParser.parsePrefix(test.raw))
   }
+
   val parseUnbraced: Matcher[Test] = Matcher { test =>
     be(test.range.asRight).apply(rangeParser.parseUnbraced(test.rawNoBraces))
   }
+
   val parseUnbracedPrefix: Matcher[(Test, String)] = Matcher {
     case (test, suffix) =>
       be((test.range, suffix).asRight)
@@ -152,6 +163,10 @@ class SliceParserTest extends PropSpec {
   }
 
   // endregion
+
+  property("Step cannot be zero") {
+    forAll(slicesWithZeroStep)(_ must failToParse)
+  }
 }
 
 object SliceParserTest {
@@ -174,13 +189,14 @@ object SliceParserTest {
              suffix
             )
 
+  val stepGen: Gen[Int] =
+    Gen.oneOf(Gen.chooseNum(Int.MinValue, -1), Gen.chooseNum(1, Int.MaxValue))
+
   val allGen: Gen[Test] =
     Gen.oneOf(
       Gen.const(Test.passing(":", All(1))),
       Gen.const(Test.passing("::", All(1))),
-      Arbitrary.arbitrary[Int].map { step =>
-        Test.passing(s"::$step", All(step))
-      }
+      stepGen.map { step => Test.passing(s"::$step", All(step)) }
     )
 
   val fromStartGen: Gen[Test] =
@@ -191,7 +207,7 @@ object SliceParserTest {
         .arbitrary[Int].map(end => Test.passing(s":$end:", FromStart(end, 1))),
       for {
         end  <- Arbitrary.arbitrary[Int]
-        step <- Arbitrary.arbitrary[Int]
+        step <- stepGen
       } yield Test.passing(s":$end:$step", FromStart(end, step))
     )
 
@@ -203,7 +219,7 @@ object SliceParserTest {
         .arbitrary[Int].map(start => Test.passing(s"$start::", ToEnd(start, 1))),
       for {
         start <- Arbitrary.arbitrary[Int]
-        step  <- Arbitrary.arbitrary[Int]
+        step  <- stepGen
       } yield Test.passing(s"$start::$step", ToEnd(start, step))
     )
 
@@ -211,7 +227,7 @@ object SliceParserTest {
     for {
       start <- Arbitrary.arbitrary[Int]
       end   <- Arbitrary.arbitrary[Int]
-      step  <- Arbitrary.arbitrary[Int]
+      step  <- stepGen
     } yield Test.passing(s"$start:$end:$step", SubSlice(start, end, step))
 
   val atGen: Gen[Test] =
@@ -221,11 +237,25 @@ object SliceParserTest {
     for {
       start    <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
       end      <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
-      step     <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
+      step     <- stepGen.optional.map(_.fold("")(_.show))
       collapse <- Arbitrary.arbitrary[Boolean]
     } yield {
       val raw = s"$start:$end:$step"
       if (collapse) raw.replace("::", ":")
       else raw
+    }
+
+  val slicesWithZeroStep: Gen[(String, ParseError)] =
+    for {
+      start <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
+      end   <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
+    } yield {
+      val prefix    = s"[$start:$end:"
+      val input     = s"${prefix}0]"
+      val stepIndex = prefix.length
+      input -> ParseError.StepCannotBeZero(
+        Index(stepIndex),
+        ErrorContext.extract(stepIndex, 5, input)
+      )
     }
 }
