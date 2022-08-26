@@ -1,7 +1,7 @@
 package peschke.shims.resource
 
-import cats.syntax.all._
 import cats.ApplicativeThrow
+import cats.syntax.all._
 import peschke.Complete
 
 import java.io.Closeable

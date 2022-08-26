@@ -1,6 +1,8 @@
 package peschke
 
-import cats.{Hash, Monoid, Show}
+import cats.Hash
+import cats.Monoid
+import cats.Show
 
 /** Used as a replacement for returning Unit.
   *

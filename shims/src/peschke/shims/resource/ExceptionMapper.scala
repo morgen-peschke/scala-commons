@@ -1,7 +1,8 @@
 package peschke.shims.resource
 
+import cats.ApplicativeError
+import cats.Id
 import cats.syntax.all._
-import cats.{ApplicativeError, Id}
 
 import scala.concurrent.Future
 import scala.util.Try
@@ -29,7 +30,7 @@ object ExceptionMapper {
         try fa
         catch {
           case NonFatal(ex) =>
-            mapErrorIfPossible(ex).map(AE.raiseError[A]).getOrElse(throw ex)
+            mapErrorIfPossible(ex).map(AE.raiseError[A]).getOrElse(throw ex) // scalafix:ok DisableSyntax.throw
         }
     }
 

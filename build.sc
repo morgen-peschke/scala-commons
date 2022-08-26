@@ -21,7 +21,7 @@ val PropSpec = Set(
 )
 
 trait StyleModule extends ScalafmtModule with ScalafixModule {
-  override def scalafixIvyDeps = Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
+  override def scalafixIvyDeps = super.scalafixIvyDeps() ++ Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
 
   def commonScalacOptions = Seq(
     "-encoding",
@@ -50,11 +50,11 @@ trait StyleModule extends ScalafmtModule with ScalafixModule {
   def crossScalaVersion: String
 
   override def scalacOptions =
-    commonScalacOptions ++ versionSpecificOptions(crossScalaVersion)
+    super.scalacOptions() ++ commonScalacOptions ++ versionSpecificOptions(crossScalaVersion)
 
-  override def scalaDocOptions = Seq("-no-link-warnings")
+  override def scalaDocOptions = super.scalaDocOptions() ++ Seq("-no-link-warnings")
 
-  override def scalacPluginIvyDeps = Agg(
+  override def scalacPluginIvyDeps = super.scalacPluginIvyDeps() ++ Agg(
     ivy"com.olegpy::better-monadic-for:0.3.1",
     ivy"org.typelevel:::kind-projector:0.13.2"
   )
@@ -64,9 +64,12 @@ trait CommonModule
     extends CrossScalaModule
     with StyleModule
     with PublishModule {
-  def publishVersion = "0.1.0"
 
-  def pomSettings = PomSettings(
+  override def artifactName: T[String] = T { s"commons-${super.artifactName()}" }
+
+  def publishVersion: T[String] = "0.1.0"
+
+  override def pomSettings: T[PomSettings] = PomSettings(
     description = "Scala Commons - common utilities for Scala projects",
     organization = "com.github.morgen-peschke",
     url = "https://github.com/morgen-peschke/scala-commons",
@@ -88,62 +91,50 @@ trait CommonTestModule extends TestModule.ScalaTest with StyleModule
 
 object core extends Cross[CoreModule](Scala12, Scala13)
 class CoreModule(val crossScalaVersion: String) extends CommonModule {
-
-  override def artifactName = "commons-core"
-
   override def ivyDeps = Agg(CatsCore, CatsParse, SuperTagged)
 
   object test extends Tests with CommonTestModule {
-    override def moduleDeps =
+    override def moduleDeps: Seq[JavaModule] =
       super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
 
-    override def ivyDeps = Agg.from(
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg.from(
       WordSpec ++ PropSpec + ivy"org.python:jython-slim:2.7.2"
     )
 
-    override def crossScalaVersion = outerCrossScalaVersion
+    override def crossScalaVersion: String = outerCrossScalaVersion
   }
 }
 
 object collections extends Cross[CollectionsModule](Scala12, Scala13)
 class CollectionsModule(val crossScalaVersion: String) extends CommonModule {
-
-  override def artifactName = "commons-collections"
-
   object test extends Tests with CommonTestModule {
-    override def moduleDeps =
+    override def moduleDeps: Seq[JavaModule] =
       super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
 
-    override def crossScalaVersion = outerCrossScalaVersion
+    override def crossScalaVersion: String = outerCrossScalaVersion
 
-    override def ivyDeps = Agg.from(WordSpec)
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg.from(WordSpec)
   }
 }
 
 object scalacheck extends Cross[ScalaCheckModule](Scala12, Scala13)
 class ScalaCheckModule(val crossScalaVersion: String) extends CommonModule {
+  override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(ScalaCheck)
 
-  override def artifactName = "commons-scalacheck"
-
-  override def ivyDeps = Agg(ScalaCheck)
-
-  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
+  override def moduleDeps: Seq[PublishModule] = super.moduleDeps ++ Seq(core(crossScalaVersion))
 
   object test extends Tests with CommonTestModule {
-    override def crossScalaVersion = outerCrossScalaVersion
+    override def crossScalaVersion: String = outerCrossScalaVersion
 
-    override def ivyDeps = Agg.from(PropSpec)
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg.from(PropSpec)
   }
 }
 
 object decline extends Cross[DeclineModule](Scala12, Scala13)
 class DeclineModule(val crossScalaVersion: String) extends CommonModule {
+  override def moduleDeps: Seq[PublishModule] = super.moduleDeps ++ Seq(core(crossScalaVersion))
 
-  override def artifactName = "commons-decline"
-
-  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
-
-  override def ivyDeps = Agg(
+  override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(
     CatsCore,
     ivy"com.monovore::decline:2.3.0"
   )
@@ -151,14 +142,11 @@ class DeclineModule(val crossScalaVersion: String) extends CommonModule {
 
 object shims extends Cross[ShimsModule](Scala12, Scala13)
 class ShimsModule(val crossScalaVersion: String) extends CommonModule {
-
-  override def artifactName = "commons-shims"
-
-  override def moduleDeps = super.moduleDeps ++ Seq(core(crossScalaVersion))
+  override def moduleDeps: Seq[PublishModule] = super.moduleDeps ++ Seq(core(crossScalaVersion))
 
   object test extends Tests with CommonTestModule {
     override def crossScalaVersion: String = outerCrossScalaVersion
 
-    override def ivyDeps = Agg.from(WordSpec)
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg.from(WordSpec)
   }
 }
