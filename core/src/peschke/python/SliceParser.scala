@@ -14,8 +14,7 @@ import cats.syntax.all._
 import peschke.python.Slice._
 import peschke.python.SliceParser.ParseError._
 
-/** Parse a [[peschke.collections.python.Slice]], using modified Python slice
-  * syntax.
+/** Parse a [[peschke.python.Slice]], using modified Python slice syntax.
   *
   * The primary modification is that the indices must be integers, rather than
   * expressions.
@@ -46,8 +45,7 @@ object SliceParser {
 
   object ErrorContext extends supertagged.NewType[String] {
 
-    private[SliceParser] def extract(start: Int, length: Int, raw: String)
-      : Type = {
+    private[python] def extract(start: Int, length: Int, raw: String): Type = {
       val len                      = length.max(3)
       val (before, targetAndAfter) = raw.splitAt(start)
       val (target, after)          = targetAndAfter.splitAt(1)
@@ -76,6 +74,7 @@ object SliceParser {
       val EndSkip    = "end-skipped"
       val StepGiven  = "step-given"
       val StepSkip   = "step-skipped"
+      val StepIsZero = "step-zero"
     }
   }
 
@@ -107,6 +106,8 @@ object SliceParser {
         extends ParseError
     final case class UnexpectedInput(index: Index, context: ErrorContext)
         extends ParseError
+    final case class StepCannotBeZero(index: Index, context: ErrorContext)
+        extends ParseError
 
     private def priority(pe: ParseError): Int = pe match {
       case ExpectedOpenBrace(_, _, _)  => 1
@@ -115,6 +116,7 @@ object SliceParser {
       case ExpectedNumber(_, _)        => 4
       case ExpectedSeparator(_, _)     => 5
       case UnexpectedInput(_, _)       => 6
+      case StepCannotBeZero(_, _)      => 7
     }
 
     implicit val order: Order[ParseError] =
@@ -132,16 +134,21 @@ object SliceParser {
         s"$index :: expected ':' at: $context"
       case UnexpectedInput(index, context) =>
         s"$index :: unexpected input at: $context"
+      case StepCannotBeZero(index, context) =>
+        s"$index :: step cannot be zero at: $context"
     }
   }
 
   def default[F[_]](openBrace:   String, closeBrace: String, contextLength: Int)
                    (implicit AE: ApplicativeError[F, NonEmptyChain[ParseError]])
     : SliceParser[F] = new SliceParser[F] {
-    private val indexParser: Parser[Long] = Numbers
-      .signedIntString.mapFilter { raw =>
-        Either.catchOnly[NumberFormatException](raw.toLong).toOption
-      }.withContext(ErrorContext.Names.Number)
+    private val indexParser: Parser[Long] =
+      Numbers
+        .signedIntString
+        .mapFilter { raw =>
+          Either.catchOnly[NumberFormatException](raw.toLong).toOption
+        }
+        .withContext(ErrorContext.Names.Number)
 
     private val openBraceParser: Parser[Unit] =
       Parser.string(openBrace).withContext(ErrorContext.Names.OpenBrace)
@@ -162,17 +169,22 @@ object SliceParser {
       val separator: Parser[Unit] = Parser.char(':').withContext(Separator)
 
       val startP: Parser0[Option[Long]] = opt(indexParser, StartGiven, StartSkip)
-      val endP:  Parser0[Option[Long]] = opt(indexParser, EndGiven, EndSkip)
-      val stepP: Parser0[Option[Long]] = opt(indexParser, StepGiven, StepSkip)
+      val endP: Parser0[Option[Long]] = opt(indexParser, EndGiven, EndSkip)
+      val stepP: Parser0[Option[Long]] =
+        opt(indexParser, StepGiven, StepSkip).flatMap {
+          case Some(0L) => Parser.fail.withContext(StepIsZero)
+          case nonZero  => Parser.pure(nonZero)
+        }
 
       val stepExp: Parser[Long] = (separator *> stepP).map(_.getOrElse(1))
 
-      ((startP <* separator) ~ (endP ~ stepExp.?).?).map {
-        case (Some(index), None) => At(index)
-        case (startOpt, Some((endOpt, stepOpt))) =>
-          Slice(startOpt, endOpt, stepOpt)
-        case (startOpt, None) => Slice(startOpt, None, None)
-      }
+      ((startP <* separator) ~ (endP ~ stepExp.?).?)
+        .map {
+          case (Some(index), None) => At(index)
+          case (startOpt, Some((endOpt, stepOpt))) =>
+            Slice(startOpt, endOpt, stepOpt)
+          case (startOpt, None) => Slice(startOpt, None, None)
+        }
     }
 
     private val bracedSliceParser: Parser0[Slice] =
@@ -199,6 +211,13 @@ object SliceParser {
             ExpectedNumber(index, context) :: Nil
           case Separator | StartSkip | EndSkip | StepSkip =>
             ExpectedSeparator(index, context) :: Nil
+          case StepIsZero =>
+            // Because this parser fails during post-parse validation, the offset needs to be adjusted
+            // for the error to make sense to the user.
+            StepCannotBeZero(
+              Index(expectation.offset - 1),
+              ErrorContext.extract(expectation.offset - 1, contextLength, input)
+            ) :: Nil
           case _ => Nil
         }).getOrElse(NonEmptyChain.one {
           expectation match {
