@@ -4,12 +4,17 @@ import cats.Id
 import cats.data.Chain
 import cats.syntax.all._
 import org.scalatest.TryValues
-import peschke.shims.resource.TestResourceFactory.{Record, ResourceBuilder}
-import peschke.{Complete, UnitSpec}
+import peschke.Complete
+import peschke.UnitSpec
+import peschke.shims.resource.TestResourceFactory.Record
+import peschke.shims.resource.TestResourceFactory.ResourceBuilder
 
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import scala.util.Try
 
+// OK to throw in this test, as the code needs to behave in the presence of exceptions
+// scalafix:off DisableSyntax.throw
 class ManagedIdTest extends UnitSpec {
   val manage: Managed.Factory[Id, Throwable] = Managed.factory[Id, Throwable]
 
@@ -1297,15 +1302,16 @@ object TestResourceFactory {
    */
   sealed abstract class Record[A] extends Product with Serializable
   object Record {
-    final case class SuccessfullyOpened[A]() extends Record[A]
+    // 'ignored: Boolean = true' is a workaround for https://github.com/scalameta/scalafmt/issues/3304
+    final case class SuccessfullyOpened[A](ignored: Boolean = true) extends Record[A]
     final case class FailedToOpen[A](error: String) extends Record[A]
     final case class SuccessfullyRetrieved[A](value: A) extends Record[A]
     final case class FailedToRetrieve[A](error: String) extends Record[A]
-    final case class RetrieveAttemptedAfterClose[A]() extends Record[A]
-    final case class SuccessfullyClosed[A]() extends Record[A]
-    final case class FailedToClose[A]() extends Record[A]
-    final case class CloseAttemptedAfterClose[A]() extends Record[A]
-    final case class RanOutOfResources[A]() extends Record[A]
+    final case class RetrieveAttemptedAfterClose[A](ignored: Boolean = true) extends Record[A]
+    final case class SuccessfullyClosed[A](ignored: Boolean = true) extends Record[A]
+    final case class FailedToClose[A](ignored: Boolean = true) extends Record[A]
+    final case class CloseAttemptedAfterClose[A](ignored: Boolean = true) extends Record[A]
+    final case class RanOutOfResources[A](ignored: Boolean = true) extends Record[A]
     final case class Marker[A](tag: String) extends Record[A]
   }
 }

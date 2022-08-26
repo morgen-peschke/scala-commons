@@ -1,11 +1,15 @@
 package peschke.shims.resource
 
-import cats.{Id, Semigroup}
+import cats.Id
+import cats.Semigroup
 import cats.syntax.all._
 import peschke.Complete
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 /** This is a poor replacement for cats-effect's MonadCancel.
   *

@@ -1,7 +1,8 @@
 package peschke.shims.resource
 
+import cats.Applicative
+import cats.Monad
 import cats.syntax.all._
-import cats.{Applicative, Monad}
 
 /** This is a poor replacement for cats-effect's `Resource`
   *
