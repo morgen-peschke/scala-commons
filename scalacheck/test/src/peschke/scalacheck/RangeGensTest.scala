@@ -91,9 +91,34 @@ class RangeGensTest extends PropSpec {
     }
   }
 
+  // Can't use the full range of Int here due to what appears to be an issue with Range
+  // see: https://github.com/scala/bug/issues/12635
+  private val arbitraryRanges =
+    ranges(Int.MinValue / 2, Int.MaxValue / 2).map(r =>
+      if (r.step < 0) r.reverse else r
+    )
+
   property("RangeGens.choose should produce elements entirely contained within the provided range") {
-    forAll(bounds.flatMap((ranges _).tupled).flatMap(r => choose(r).map(r -> _))) {
-      case (range, i) => range.contains(i) mustBe true
+    forAll(arbitraryRanges.flatMap(r => choose(r).map(r -> _))) {
+      case (range, i) =>
+        withClue(s"($range) contains ($i):") {
+          range.contains(i) mustBe true
+        }
+    }
+  }
+
+  property("RangeGens.within should produce ranges that are subsets of the provided range") {
+    forAll(arbitraryRanges.flatMap(r => slices(r).map(r -> _))) {
+      case (reference, produced) =>
+        produced.step mustBe reference.step
+        withClue(s"($reference) contains (${produced.start}):") {
+          reference.contains(produced.start) mustBe true
+        }
+        if (produced.nonEmpty) {
+          withClue(s"($reference) contains (${produced.last}):") {
+            reference.contains(produced.last) mustBe true
+          }
+        }
     }
   }
 }

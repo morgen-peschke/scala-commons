@@ -3,9 +3,7 @@ package peschke.scalacheck
 import org.scalacheck.Gen
 import org.scalatest.Inspectors
 import peschke.PropSpec
-import peschke.scalacheck.NumericRangeGensLongTest.PrettyRange
-
-import scala.collection.immutable.NumericRange
+import peschke.scalacheck.NumericRangeGens.PrettyRange
 
 class NumericRangeGensLongTest extends PropSpec {
   private val bounds =
@@ -20,6 +18,10 @@ class NumericRangeGensLongTest extends PropSpec {
     NumericRangeGens.exclusiveNumericRanges(_, _).map(PrettyRange(_))
   val numericRanges: (Long, Long) => Gen[PrettyRange[Long]] =
     NumericRangeGens.numericRanges(_, _).map(PrettyRange(_))
+  val chooseNumeric: PrettyRange[Long] => Gen[Long] = pr =>
+    NumericRangeGens.chooseNumeric(pr.range)
+  val withinNumeric: PrettyRange[Long] => Gen[PrettyRange[Long]] =
+    pr => NumericRangeGens.slices(pr.range).map(PrettyRange(_))
 
   property("NumericRangeGens[Long].inclusiveNumericRanges should produce ranges entirely contained within min and max") {
     forAll(bounds.flatMap(b => inclusiveNumericRanges.tupled(b).map(b -> _))) {
@@ -95,20 +97,30 @@ class NumericRangeGensLongTest extends PropSpec {
     }
   }
 
+  // Can't use the full range of Long here due to what appears to be an issue with NumericRange
+  // see: https://github.com/scala/bug/issues/12635
+  private val arbitraryRanges =
+    numericRanges(Long.MinValue / 2L, Long.MaxValue / 2L)
+  // .map(r => if (r.range.step < 0L) r.copy(range = r.range.reverse) else r)
+
   property("NumericRangeGens[Long].chooseNumeric should produce elements entirely contained within the provided range") {
-    forAll(
-      bounds
-        .flatMap(numericRanges.tupled).flatMap(r =>
-          NumericRangeGens.chooseNumeric(r.range).map(r -> _)
-        )
-    ) { case (PrettyRange(range), i) => range.contains(i) mustBe true }
+    forAll(arbitraryRanges.flatMap(r => chooseNumeric(r).map(r -> _))) {
+      case (PrettyRange(range), i) => range.contains(i) mustBe true
+    }
   }
-}
-object NumericRangeGensLongTest {
-  // Needed because invalid ranges break ScalaTest
-  final case class PrettyRange[A](range: NumericRange[A]) {
-    override def toString: String =
-      if (range.isInclusive) s"${range.start} to ${range.end} by ${range.step}"
-      else s"${range.start} until ${range.end} by ${range.step}"
+
+  property("NumericRangeGens[Long].within should produce ranges that are subsets of the provided range") {
+    forAll(arbitraryRanges.flatMap(r => withinNumeric(r).map(r -> _))) {
+      case (PrettyRange(reference), PrettyRange(produced)) =>
+        produced.step mustBe reference.step
+        withClue(s"($reference) contains (${produced.start}):") {
+          reference.contains(produced.start) mustBe true
+        }
+        if (produced.nonEmpty) {
+          withClue(s"($reference) contains (${produced.last}):") {
+            reference.contains(produced.last) mustBe true
+          }
+        }
+    }
   }
 }

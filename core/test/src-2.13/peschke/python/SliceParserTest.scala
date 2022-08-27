@@ -97,7 +97,7 @@ class SliceParserTest extends PropSpec {
   }
 
   property("RangeParser.parsePrefix should not choke on valid input") {
-    forAll(gensWithoutExpectations, Gen.alphaChar.as.string(0 to 10)) {
+    forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) {
       (input, suffix) => rangeParser.parsePrefix(s"[$input]$suffix").value
     }
   }
@@ -157,7 +157,7 @@ class SliceParserTest extends PropSpec {
   }
 
   property("RangeParser.parseUnbracedPrefix should not choke on valid input") {
-    forAll(gensWithoutExpectations, Gen.alphaChar.as.string(0 to 10)) {
+    forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) {
       (input, suffix) => rangeParser.parseUnbracedPrefix(s"$input$suffix").value
     }
   }
@@ -180,7 +180,7 @@ object SliceParserTest {
   def addSuffix(gt: Gen[Test]): Gen[(Test, String)] =
     for {
       test   <- gt
-      suffix <- Gen.alphaChar.as.string(0 to 10)
+      suffix <- Gen.alphaChar.gen.string(0 to 10)
     } yield (Test(
                s"${test.rawNoBraces}$suffix",
                s"${test.raw}$suffix",

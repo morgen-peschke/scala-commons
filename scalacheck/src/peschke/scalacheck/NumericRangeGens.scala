@@ -5,6 +5,7 @@ import cats.syntax.eq._
 import org.scalacheck.Gen
 import peschke.Convertible
 import peschke.Convertible.syntax._
+import peschke.collections.range.syntax._
 import peschke.numeric.Bounded
 
 import scala.collection.immutable.NumericRange
@@ -115,12 +116,46 @@ trait NumericRangeGens {
     * Other than not producing `A` values instead of [[Int]], this should behave
     * identically to [[RangeGens.choose()]]
     */
-  def chooseNumeric[A](range: NumericRange[A])(implicit A: Numeric[A]): Gen[A] =
+  def chooseNumeric[A](range: NumericRange[A])(implicit A: Integral[A])
+    : Gen[A] =
     if (range.isEmpty) Gen.fail
     else
       Gen.choose(0, range.length - 1).map { stepCount =>
         A.plus(range.start, A.times(A.fromInt(stepCount), range.step))
       }
 
+  /** Generate a value in the range [0, range.length)
+    *
+    * This can be a safer way to generate a number of steps within a range.
+    */
+  def chooseSteps[A](range: NumericRange[A]): Gen[Int] =
+    if (range.isEmpty) Gen.const(0)
+    else Gen.chooseNum(0, 1.max(range.length - 1))
+
+  /** Generate [[NumericRange]]s that are a subset of a reference
+    * [[NumericRange]]
+    */
+  def slices[A](range: NumericRange[A])(implicit A: Integral[A])
+    : Gen[NumericRange[A]] = {
+    if (range.isEmpty) Gen.fail
+    else
+      for {
+        a <- Gen.chooseNum(0, range.length - 1)
+        b <- Gen.chooseNum(0, range.length - 1)
+      } yield range.sliceRange(a.min(b), a.max(b))
+  }
 }
-object NumericRangeGens extends NumericRangeGens
+object NumericRangeGens extends NumericRangeGens {
+
+  /** Wrapper around [[NumericRange]] to keep ScalaTest reporters happy.
+    *
+    * If [[NumericRange.length]] exceeds [[Int.MaxValue]], a [[NumericRange]]
+    * can't print, which breaks ScalaTest's reporters. This class provides a way
+    * to avoid that by wrapping the range in something with a safer `toString`
+    */
+  final case class PrettyRange[A](range: NumericRange[A]) {
+    override def toString: String =
+      if (range.isInclusive) s"${range.start} to ${range.end} by ${range.step}"
+      else s"${range.start} until ${range.end} by ${range.step}"
+  }
+}

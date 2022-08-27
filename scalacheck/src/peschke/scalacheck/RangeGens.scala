@@ -80,6 +80,14 @@ trait RangeGens {
       exclusiveRanges(min, max)
     )
 
+  /** Generate a value in the range [0, range.length)
+    *
+    * This can be a safer way to generate a number of steps within a range.
+    */
+  def chooseSteps(range: Range): Gen[Int] =
+    if (range.isEmpty) Gen.const(0)
+    else Gen.chooseNum(0, 1.max(range.length - 1))
+
   /** Generate [[Int]] values bounded by a [[Range]]
     *
     * Values will honor [[Range.step]], so [[Range.contains]] should return
@@ -91,5 +99,15 @@ trait RangeGens {
       Gen.chooseNum(0, range.length - 1).map { stepCount =>
         range.start + (stepCount * range.step)
       }
+
+  /** Generate [[Range]]s that are a subset of a reference [[Range]]
+    */
+  def slices(range: Range): Gen[Range] =
+    if (range.isEmpty) Gen.fail
+    else
+      for {
+        a <- Gen.chooseNum(0, range.length - 1)
+        b <- Gen.chooseNum(0, range.length - 1)
+      } yield range.slice(a.min(b), a.max(b))
 }
 object RangeGens extends RangeGens

@@ -61,7 +61,7 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
           .scalaAndPythonSlices(
             (0 to 20)
               .choose
-              .as
+              .gen
               .vector(0 to 20)
           )
           .map(_.map(_.length))
@@ -170,9 +170,9 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
     }
   }
 
-  checkAgainstReference[Chain]((0 to 20).choose.as.chain(0 to 20))
-  checkAgainstReference[List]((0 to 20).choose.as.list(0 to 20))
-  checkAgainstReference[Vector]((0 to 20).choose.as.vector(0 to 20))
+  checkAgainstReference[Chain]((0 to 20).choose.gen.chain(0 to 20))
+  checkAgainstReference[List]((0 to 20).choose.gen.list(0 to 20))
+  checkAgainstReference[Vector]((0 to 20).choose.gen.vector(0 to 20))
 }
 object SlicerTest {
   def scalaAndPythonSlices[C[_]: Foldable](targets: Gen[C[Int]])
