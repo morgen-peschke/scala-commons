@@ -107,13 +107,15 @@ class CoreModule(val crossScalaVersion: String) extends CommonModule {
 
 object collections extends Cross[CollectionsModule](Scala12, Scala13)
 class CollectionsModule(val crossScalaVersion: String) extends CommonModule {
+  override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(CatsCore)
+
   object test extends Tests with CommonTestModule {
     override def moduleDeps: Seq[JavaModule] =
       super.moduleDeps ++ Seq(scalacheck(crossScalaVersion))
 
     override def crossScalaVersion: String = outerCrossScalaVersion
 
-    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg.from(WordSpec)
+    override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg.from(WordSpec ++ PropSpec)
   }
 }
 
@@ -121,7 +123,10 @@ object scalacheck extends Cross[ScalaCheckModule](Scala12, Scala13)
 class ScalaCheckModule(val crossScalaVersion: String) extends CommonModule {
   override def ivyDeps: T[Agg[Dep]] = super.ivyDeps() ++ Agg(ScalaCheck)
 
-  override def moduleDeps: Seq[PublishModule] = super.moduleDeps ++ Seq(core(crossScalaVersion))
+  override def moduleDeps: Seq[PublishModule] = super.moduleDeps ++ Seq(
+    core(crossScalaVersion),
+    collections(crossScalaVersion)
+  )
 
   object test extends Tests with CommonTestModule {
     override def crossScalaVersion: String = outerCrossScalaVersion
