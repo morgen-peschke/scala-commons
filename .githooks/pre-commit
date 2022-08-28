@@ -33,4 +33,5 @@ fi
 
 mill __.compile + \
      __.test + \
+     __.fix --check + \
      __.checkFormat

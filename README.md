@@ -62,12 +62,14 @@ Highlights include:
   ```scala
   Gen.chooseNum(0, (b-a) - 1).map(l => a + (c * l))
   ```
-- `Combinators.ranges(min, max)` generates `Range`s within those bounds
+- `RangeGens.ranges(min, max)` generates `Range`s within those bounds
+- `NumericRangeGens.numericRanges(min, max)` generates `NumericRange`s within those bounds
 - `(g: Gen[A]).as.list(a to b)` as an alternative to `Gen.chooseNum(a, b).flatMap(Gen.listOfN(g, foo))`
-  Variants also exist to produce `Vector`, `Chain`, and the `NonEmpty*` equivalents, as well as one to 
+
+  Variants also exist to produce `Vector`, `Chain`, and the `NonEmpty*` equivalents, as well as one to
   lift a `Gen[Char]` into a `Gen[String]`
-- `(g: Gen[A]).optional` as an chaining alternative to `Gen.option(g)`
+- `(g: Gen[A]).optional` as a chaining alternative to `Gen.option(g)`
 
 ### `commons-decline`
 
-Instances for Decline, notably one for `Slice` as it tends to very handy for CLI utilities.
+Instances for Decline, notably one for `Slice` as it tends to be very handy for CLI utilities.

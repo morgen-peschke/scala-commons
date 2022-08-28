@@ -1,8 +1,8 @@
 package peschke.python
 
-import cats.syntax.all._
 import cats.Foldable
 import cats.data.Chain
+import cats.syntax.all._
 import org.python.util.PythonInterpreter
 import org.scalacheck.Gen
 import org.scalatest.Inside
@@ -11,9 +11,9 @@ import peschke.TableSpec
 import peschke.python.Slicer.syntax._
 import peschke.scalacheck.syntax._
 
+import java.lang.{Integer => JInt}
 import scala.jdk.CollectionConverters._
 import scala.reflect.runtime.universe.WeakTypeTag
-import java.lang.{Integer => JInt}
 
 class SlicerTest extends TableSpec with SliceTestSyntax {
 
@@ -57,10 +57,13 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
 
     "match the reference implementation" in
       GenChecks.forAll {
-        SlicerTest.scalaAndPythonSlices((0 to 20)
-          .choose
-          .as
-          .vector(0 to 20))
+        SlicerTest
+          .scalaAndPythonSlices(
+            (0 to 20)
+              .choose
+              .gen
+              .vector(0 to 20)
+          )
           .map(_.map(_.length))
       } {
         case ((startOpt, endOpt, stepOpt), length) =>
@@ -78,10 +81,12 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
           interpreter.set("end", endOpt.map(JInt.valueOf).orNull)
           interpreter.set("step", stepOpt.map(JInt.valueOf).orNull)
           interpreter.set("length", JInt.valueOf(length))
-          interpreter.exec("(rStart, rEnd, rStep) = slice(start,end,step).indices(length)")
-          val rStart = interpreter.get("rStart").asInt.toLong
-          val rEnd = interpreter.get("rEnd").asInt.toLong
-          val rStep = interpreter.get("rStep").asInt.toLong
+          interpreter.exec(
+            "(rStart, rEnd, rStep) = slice(start,end,step).indices(length)"
+          )
+          val rStart       = interpreter.get("rStart").asInt.toLong
+          val rEnd         = interpreter.get("rEnd").asInt.toLong
+          val rStep        = interpreter.get("rStep").asInt.toLong
           val pythonResult = rStart until rEnd by rStep
 
           Inside.inside((scalaResult, pythonResult)) {
@@ -144,7 +149,10 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
             )
 
             val interpreter = new PythonInterpreter();
-            interpreter.set("target", scalaTarget.toList.map(JInt.valueOf).toArray)
+            interpreter.set(
+              "target",
+              scalaTarget.toList.map(JInt.valueOf).toArray
+            )
             interpreter.set("start", startOpt.map(JInt.valueOf).orNull)
             interpreter.set("end", endOpt.map(JInt.valueOf).orNull)
             interpreter.set("step", stepOpt.map(JInt.valueOf).orNull)
@@ -162,9 +170,9 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
     }
   }
 
-  checkAgainstReference[Chain]((0 to 20).choose.as.chain(0 to 20))
-  checkAgainstReference[List]((0 to 20).choose.as.list(0 to 20))
-  checkAgainstReference[Vector]((0 to 20).choose.as.vector(0 to 20))
+  checkAgainstReference[Chain]((0 to 20).choose.gen.chain(0 to 20))
+  checkAgainstReference[List]((0 to 20).choose.gen.list(0 to 20))
+  checkAgainstReference[Vector]((0 to 20).choose.gen.vector(0 to 20))
 }
 object SlicerTest {
   def scalaAndPythonSlices[C[_]: Foldable](targets: Gen[C[Int]])
@@ -184,7 +192,7 @@ object SlicerTest {
         for {
           startOpt <- wideRange.choose.optional
           endOpt   <- wideRange.choose.optional
-          stepOpt  <- wideRange.choose.map(s => if (s == 0) 1 else s).optional
+          stepOpt  <- wideRange.choose.map(s => if (s === 0) 1 else s).optional
         } yield (startOpt, endOpt, stepOpt)
 
       Gen.oneOf(inRange, maybeOutOfRange).map(_ -> target)

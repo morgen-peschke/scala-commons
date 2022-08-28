@@ -1,6 +1,7 @@
 package peschke.collections
 
-import scala.collection.{AbstractView, BuildFrom}
+import scala.collection.AbstractView
+import scala.collection.BuildFrom
 
 /** Provides a reversed alternative to [[scala.collection.Iterator.takeWhile]]
   *
