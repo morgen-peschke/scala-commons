@@ -7,20 +7,22 @@ Common utility libraries for Scala, mostly small stuff I don't want to have mult
 ### SBT
 ```
 libraryDependencies += Seq(
-  "com.github.morgen-peschke" % "commons-core" % "0.1.0",
-  "com.github.morgen-peschke" % "commons-collections" % "0.1.0",
-  "com.github.morgen-peschke" % "commons-decline" % "0.1.0",
-  "com.github.morgen-peschke" % "commons-scalacheck" % "0.1.0" % Test
+  "com.github.morgen-peschke" % "commons-core" % "0.2.0",
+  "com.github.morgen-peschke" % "commons-collections" % "0.2.0",
+  "com.github.morgen-peschke" % "commons-decline" % "0.2.0",
+  "com.github.morgen-peschke" % "commons-shims" % "0.2.0",
+  "com.github.morgen-peschke" % "commons-scalacheck" % "0.2.0" % Test
 )
 ```
 
 ### Mill
 ```
 def ivyDeps = Agg(
-  ivy"com.github.morgen-peschke::commons-core:0.1.0",
-  ivy"com.github.morgen-peschke::commons-collections:0.1.0",
-  ivy"com.github.morgen-peschke::commons-decline:0.1.0",
-  ivy"com.github.morgen-peschke::commons-scalacheck:0.1.0"
+  ivy"com.github.morgen-peschke::commons-core:0.2.0",
+  ivy"com.github.morgen-peschke::commons-collections:0.2.0",
+  ivy"com.github.morgen-peschke::commons-decline:0.2.0",
+  ivy"com.github.morgen-peschke::commons-shims:0.2.0",
+  ivy"com.github.morgen-peschke::commons-scalacheck:0.2.0"
 )
 ```
 
@@ -73,3 +75,11 @@ Highlights include:
 ### `commons-decline`
 
 Instances for Decline, notably one for `Slice` as it tends to be very handy for CLI utilities.
+
+### `commons-shims`
+
+Everything in this module has a better alternative in another library. If, however, you're not able to access
+the better version, this module aims to provide at least some comfort in the form of minimal dependency alternatives.
+
+The primary example is `Managed`, which solves the same general problem as Java's try-with-resource construct, and
+is far better solved by `cats.effect.Resource`.
