@@ -1,8 +1,8 @@
 package peschke
 
-import cats.Applicative
-import cats.Functor
-import cats.syntax.all._
+import _root_.cats.Applicative
+import _root_.cats.Functor
+import _root_.cats.syntax.all._
 
 /** Provides a more principled and visible way of managing implicit conversions.
   */
