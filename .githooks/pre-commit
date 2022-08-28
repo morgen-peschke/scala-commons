@@ -31,6 +31,17 @@ EOF
 	exit 1
 fi
 
+if mill show __.publishVersion 2>/dev/null | jq --raw-output '.[]' | \grep -E '[^0-9.]'
+then
+  cat <<\EOF
+Error: Version number contains unexpected characters.
+
+Sometimes a 'g' will sneak in there, (see version 0.2g.0), please double-check the publishVersion in build.sc
+EOF
+  exit 1
+fi
+
 mill __.compile + \
      __.test + \
+     __.fix --check + \
      __.checkFormat

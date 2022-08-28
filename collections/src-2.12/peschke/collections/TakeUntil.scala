@@ -1,8 +1,9 @@
 package peschke.collections
 
 import scala.annotation.tailrec
+import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
-import scala.collection.{TraversableLike, mutable}
+import scala.collection.mutable
 import scala.language.higherKinds
 
 /** Provides a reversed alternative to
@@ -34,7 +35,7 @@ object TakeUntil {
 
   object syntax {
     implicit class TakeUntilOps[E, C[X] <: TraversableLike[X, C[X]]]
-      (val source: C[E])
+      (private val source: C[E])
         extends AnyVal {
       def takeUntil[That](p:            E => Boolean)
                          (implicit cbf: CanBuildFrom[C[E], E, That])
