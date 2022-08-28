@@ -14,151 +14,151 @@ import peschke.python.SliceParserTest._
 import peschke.scalacheck.syntax._
 
 class SliceParserTest extends PropSpec {
-  private val rangeParser = SliceParser.default[ParseError.OrRight](
+  private val sliceParser = SliceParser.default[ParseError.OrRight](
     openBrace = "[",
     closeBrace = "]",
     contextLength = 5
   )
 
   val parse: Matcher[Test] = Matcher { test =>
-    be(test.range.asRight).apply(rangeParser.parse(test.raw))
+    be(test.range.asRight).apply(sliceParser.parse(test.raw))
   }
 
   val failToParse: Matcher[(String, ParseError)] = Matcher {
     case (input, expected) =>
-      be(NonEmptyChain(expected).asLeft).apply(rangeParser.parse(input))
+      be(NonEmptyChain(expected).asLeft).apply(sliceParser.parse(input))
   }
 
   val parsePrefix: Matcher[(Test, String)] = Matcher {
     case (test, suffix) =>
-      be((test.range, suffix).asRight).apply(rangeParser.parsePrefix(test.raw))
+      be((test.range, suffix).asRight).apply(sliceParser.parsePrefix(test.raw))
   }
 
   val parseUnbraced: Matcher[Test] = Matcher { test =>
-    be(test.range.asRight).apply(rangeParser.parseUnbraced(test.rawNoBraces))
+    be(test.range.asRight).apply(sliceParser.parseUnbraced(test.rawNoBraces))
   }
 
   val parseUnbracedPrefix: Matcher[(Test, String)] = Matcher {
     case (test, suffix) =>
       be((test.range, suffix).asRight)
-        .apply(rangeParser.parseUnbracedPrefix(test.rawNoBraces))
+        .apply(sliceParser.parseUnbracedPrefix(test.rawNoBraces))
   }
 
-  // region RangeParser.parse
+  // region SliceParser.parse
 
-  property("RangeParser.parse should be able to parse an All") {
+  property("SliceParser.parse should be able to parse an All") {
     forAll(allGen)(_ must parse)
   }
 
-  property("RangeParser.parse should be able to parse a FromStart") {
+  property("SliceParser.parse should be able to parse a FromStart") {
     forAll(fromStartGen)(_ must parse)
   }
 
-  property("RangeParser.parse should be able to parse a ToEnd") {
+  property("SliceParser.parse should be able to parse a ToEnd") {
     forAll(toEndGen)(_ must parse)
   }
 
-  property("RangeParser.parse should be able to parse a SubSlice") {
+  property("SliceParser.parse should be able to parse a SubSlice") {
     forAll(subSliceGen)(_ must parse)
   }
 
-  property("RangeParser.parse should be able to parse an At") {
+  property("SliceParser.parse should be able to parse an At") {
     forAll(atGen)(_ must parse)
   }
 
-  property("RangeParser.parse should not choke on valid input") {
+  property("SliceParser.parse should not choke on valid input") {
     forAll(gensWithoutExpectations) { input =>
-      rangeParser.parse(s"[$input]").value
+      sliceParser.parse(s"[$input]").value
     }
   }
 
   // endregion
 
-  // region RangeParser.parsePrefix
+  // region SliceParser.parsePrefix
 
-  property("RangeParser.parsePrefix should be able to parse an All") {
+  property("SliceParser.parsePrefix should be able to parse an All") {
     forAll(addSuffix(allGen))(_ must parsePrefix)
   }
 
-  property("RangeParser.parsePrefix should be able to parse a FromStart") {
+  property("SliceParser.parsePrefix should be able to parse a FromStart") {
     forAll(addSuffix(fromStartGen))(_ must parsePrefix)
   }
 
-  property("RangeParser.parsePrefix should be able to parse a ToEnd") {
+  property("SliceParser.parsePrefix should be able to parse a ToEnd") {
     forAll(addSuffix(toEndGen))(_ must parsePrefix)
   }
 
-  property("RangeParser.parsePrefix should be able to parse a SubSlice") {
+  property("SliceParser.parsePrefix should be able to parse a SubSlice") {
     forAll(addSuffix(subSliceGen))(_ must parsePrefix)
   }
 
-  property("RangeParser.parsePrefix should be able to parse an At") {
+  property("SliceParser.parsePrefix should be able to parse an At") {
     forAll(addSuffix(atGen))(_ must parsePrefix)
   }
 
-  property("RangeParser.parsePrefix should not choke on valid input") {
+  property("SliceParser.parsePrefix should not choke on valid input") {
     forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) {
-      (input, suffix) => rangeParser.parsePrefix(s"[$input]$suffix").value
+      (input, suffix) => sliceParser.parsePrefix(s"[$input]$suffix").value
     }
   }
 
   // endregion
 
-  // region RangeParser.parseUnbraced
+  // region SliceParser.parseUnbraced
 
-  property("RangeParser.parseUnbraced should be able to parse an All") {
+  property("SliceParser.parseUnbraced should be able to parse an All") {
     forAll(allGen)(_ must parseUnbraced)
   }
 
-  property("RangeParser.parseUnbraced should be able to parse a FromStart") {
+  property("SliceParser.parseUnbraced should be able to parse a FromStart") {
     forAll(fromStartGen)(_ must parseUnbraced)
   }
 
-  property("RangeParser.parseUnbraced should be able to parse a ToEnd") {
+  property("SliceParser.parseUnbraced should be able to parse a ToEnd") {
     forAll(toEndGen)(_ must parseUnbraced)
   }
 
-  property("RangeParser.parseUnbraced should be able to parse a SubSlice") {
+  property("SliceParser.parseUnbraced should be able to parse a SubSlice") {
     forAll(subSliceGen)(_ must parseUnbraced)
   }
 
-  property("RangeParser.parseUnbraced should be able to parse an At") {
+  property("SliceParser.parseUnbraced should be able to parse an At") {
     forAll(atGen)(_ must parseUnbraced)
   }
 
-  property("RangeParser.parseUnbraced should not choke on valid input") {
+  property("SliceParser.parseUnbraced should not choke on valid input") {
     forAll(gensWithoutExpectations) { input =>
-      rangeParser.parseUnbraced(s"$input").value
+      sliceParser.parseUnbraced(s"$input").value
     }
   }
 
   // endregion
 
-  // region RangeParser.parseUnbracedPrefix
+  // region SliceParser.parseUnbracedPrefix
 
-  property("RangeParser.parseUnbracedPrefix should be able to parse an All") {
+  property("SliceParser.parseUnbracedPrefix should be able to parse an All") {
     forAll(addSuffix(allGen))(_ must parseUnbracedPrefix)
   }
 
-  property("RangeParser.parseUnbracedPrefix should be able to parse a FromStart") {
+  property("SliceParser.parseUnbracedPrefix should be able to parse a FromStart") {
     forAll(addSuffix(fromStartGen))(_ must parseUnbracedPrefix)
   }
 
-  property("RangeParser.parseUnbracedPrefix should be able to parse a ToEnd") {
+  property("SliceParser.parseUnbracedPrefix should be able to parse a ToEnd") {
     forAll(addSuffix(toEndGen))(_ must parseUnbracedPrefix)
   }
 
-  property("RangeParser.parseUnbracedPrefix should be able to parse a SubSlice") {
+  property("SliceParser.parseUnbracedPrefix should be able to parse a SubSlice") {
     forAll(addSuffix(subSliceGen))(_ must parseUnbracedPrefix)
   }
 
-  property("RangeParser.parseUnbracedPrefix should be able to parse an At") {
+  property("SliceParser.parseUnbracedPrefix should be able to parse an At") {
     forAll(addSuffix(atGen))(_ must parseUnbracedPrefix)
   }
 
-  property("RangeParser.parseUnbracedPrefix should not choke on valid input") {
+  property("SliceParser.parseUnbracedPrefix should not choke on valid input") {
     forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) {
-      (input, suffix) => rangeParser.parseUnbracedPrefix(s"$input$suffix").value
+      (input, suffix) => sliceParser.parseUnbracedPrefix(s"$input$suffix").value
     }
   }
 
