@@ -24,24 +24,21 @@ class SliceParserTest extends PropSpec {
     be(test.range.asRight).apply(sliceParser.parse(test.raw))
   }
 
-  val failToParse: Matcher[(String, ParseError)] = Matcher {
-    case (input, expected) =>
-      be(NonEmptyChain(expected).asLeft).apply(sliceParser.parse(input))
+  val failToParse: Matcher[(String, ParseError)] = Matcher { case (input, expected) =>
+    be(NonEmptyChain(expected).asLeft).apply(sliceParser.parse(input))
   }
 
-  val parsePrefix: Matcher[(Test, String)] = Matcher {
-    case (test, suffix) =>
-      be((test.range, suffix).asRight).apply(sliceParser.parsePrefix(test.raw))
+  val parsePrefix: Matcher[(Test, String)] = Matcher { case (test, suffix) =>
+    be((test.range, suffix).asRight).apply(sliceParser.parsePrefix(test.raw))
   }
 
   val parseUnbraced: Matcher[Test] = Matcher { test =>
     be(test.range.asRight).apply(sliceParser.parseUnbraced(test.rawNoBraces))
   }
 
-  val parseUnbracedPrefix: Matcher[(Test, String)] = Matcher {
-    case (test, suffix) =>
-      be((test.range, suffix).asRight)
-        .apply(sliceParser.parseUnbracedPrefix(test.rawNoBraces))
+  val parseUnbracedPrefix: Matcher[(Test, String)] = Matcher { case (test, suffix) =>
+    be((test.range, suffix).asRight)
+      .apply(sliceParser.parseUnbracedPrefix(test.rawNoBraces))
   }
 
   // region SliceParser.parse
@@ -97,8 +94,8 @@ class SliceParserTest extends PropSpec {
   }
 
   property("SliceParser.parsePrefix should not choke on valid input") {
-    forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) {
-      (input, suffix) => sliceParser.parsePrefix(s"[$input]$suffix").value
+    forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) { (input, suffix) =>
+      sliceParser.parsePrefix(s"[$input]$suffix").value
     }
   }
 
@@ -157,8 +154,8 @@ class SliceParserTest extends PropSpec {
   }
 
   property("SliceParser.parseUnbracedPrefix should not choke on valid input") {
-    forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) {
-      (input, suffix) => sliceParser.parseUnbracedPrefix(s"$input$suffix").value
+    forAll(gensWithoutExpectations, Gen.alphaChar.gen.string(0 to 10)) { (input, suffix) =>
+      sliceParser.parseUnbracedPrefix(s"$input$suffix").value
     }
   }
 
@@ -187,7 +184,7 @@ object SliceParserTest {
                test.range
              ),
              suffix
-            )
+    )
 
   val stepGen: Gen[Int] =
     Gen.oneOf(Gen.chooseNum(Int.MinValue, -1), Gen.chooseNum(1, Int.MaxValue))
@@ -196,7 +193,7 @@ object SliceParserTest {
     Gen.oneOf(
       Gen.const(Test.passing(":", All(1))),
       Gen.const(Test.passing("::", All(1))),
-      stepGen.map { step => Test.passing(s"::$step", All(step)) }
+      stepGen.map(step => Test.passing(s"::$step", All(step)))
     )
 
   val fromStartGen: Gen[Test] =
@@ -231,7 +228,7 @@ object SliceParserTest {
     } yield Test.passing(s"$start:$end:$step", SubSlice(start, end, step))
 
   val atGen: Gen[Test] =
-    Arbitrary.arbitrary[Int].map { i => Test.passing(s"$i", At(i)) }
+    Arbitrary.arbitrary[Int].map(i => Test.passing(s"$i", At(i)))
 
   val gensWithoutExpectations: Gen[String] =
     for {
@@ -250,8 +247,8 @@ object SliceParserTest {
       start <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
       end   <- Arbitrary.arbitrary[Int].optional.map(_.fold("")(_.show))
     } yield {
-      val prefix    = s"[$start:$end:"
-      val input     = s"${prefix}0]"
+      val prefix = s"[$start:$end:"
+      val input = s"${prefix}0]"
       val stepIndex = prefix.length
       input -> ParseError.StepCannotBeZero(
         Index(stepIndex),

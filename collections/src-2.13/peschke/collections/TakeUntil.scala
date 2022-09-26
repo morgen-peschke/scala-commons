@@ -5,12 +5,13 @@ import scala.collection.BuildFrom
 
 /** Provides a reversed alternative to [[scala.collection.Iterator.takeWhile]]
   *
-  * Of particular interest is that [[TakeUntil.takeUntil]] includes the final
-  * value which caused the predicate to evaluate to `true`.
+  * Of particular interest is that [[TakeUntil.takeUntil]] includes the final value which caused the predicate to
+  * evaluate to `true`.
   */
 object TakeUntil {
   def takeUntil[E, C[_] <: IterableOnce[_], Out]
-    (source:      C[E])(stop:                  E => Boolean)
+    (source:      C[E])
+    (stop:        E => Boolean)
     (implicit bf: BuildFrom[C[E], E, Out], ev: C[E] <:< IterableOnce[E])
     : Out =
     bf.fromSpecific(source)(new AbstractView[E] {
@@ -29,17 +30,13 @@ object TakeUntil {
     // Can't be an AnyVal style extension method because there's no way to infer the element type without
     // breaking the invariant that Value Classes can only wrap a single value.
     class TakeUntilOps[E, C[_] <: IterableOnce[_]](source: C[E]) {
-      def takeUntil[Out]
-        (stop:        E => Boolean)
-        (implicit bf: BuildFrom[C[E], E, Out], ev: C[E] <:< IterableOnce[E])
-        : Out =
+      def takeUntil[Out](stop: E => Boolean)(implicit bf: BuildFrom[C[E], E, Out], ev: C[E] <:< IterableOnce[E]): Out =
         TakeUntil.takeUntil[E, C, Out](source)(stop)(bf, ev)
     }
 
     import scala.language.implicitConversions
 
-    implicit def takeUntilOp[E, C[_] <: IterableOnce[_]](source: C[E])
-      : TakeUntilOps[E, C] =
+    implicit def takeUntilOp[E, C[_] <: IterableOnce[_]](source: C[E]): TakeUntilOps[E, C] =
       new TakeUntilOps[E, C](source)
   }
 }

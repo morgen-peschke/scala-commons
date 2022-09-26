@@ -21,7 +21,8 @@ class ManagedIdTest extends UnitSpec {
   "Pure[Id,Throwable,*].use" should {
     "return the same resource each time" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -40,7 +41,8 @@ class ManagedIdTest extends UnitSpec {
 
     "never close the resource" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).unClosable)
           .build
 
@@ -56,7 +58,8 @@ class ManagedIdTest extends UnitSpec {
 
     "throw open errors during creation" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .failToOpen(new NoSuchElementException("Nope!"))
           .build
 
@@ -71,7 +74,8 @@ class ManagedIdTest extends UnitSpec {
 
     "throw retrieve errors" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.throwing(new NoSuchElementException("Nope!")).canClose)
           .build
 
@@ -89,7 +93,8 @@ class ManagedIdTest extends UnitSpec {
 
     "throw errors during use" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .build
 
@@ -111,7 +116,8 @@ class ManagedIdTest extends UnitSpec {
   "Resource[Id,Throwable,_].use" should {
     "open a new resource each time" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -227,7 +233,8 @@ class ManagedIdTest extends UnitSpec {
   "FlatMapped[Id,Throwable,_].use" should {
     "correctly sequence open -> use -> close" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -262,7 +269,8 @@ class ManagedIdTest extends UnitSpec {
 
     "close the outer resource, even if the inner resource fails to open" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .failToOpen(new NoSuchElementException("Nope!"))
           .build
@@ -288,7 +296,8 @@ class ManagedIdTest extends UnitSpec {
 
     "close the outer resource, even if the inner resource fails during use" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.throwing(new NoSuchElementException("Nope!")).canClose)
           .build
@@ -316,7 +325,8 @@ class ManagedIdTest extends UnitSpec {
 
     "close the outer resource, even if the inner resource fails during close" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).unClosable)
           .build
@@ -346,7 +356,8 @@ class ManagedIdTest extends UnitSpec {
   "Managed[Id,Throwable,_]" should {
     "behave correctly inside a for-comprehension" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -357,8 +368,8 @@ class ManagedIdTest extends UnitSpec {
           r1 <- manage.always(factory.open())
         } yield (r0.retrieve, r1.retrieve)
 
-      val actual = managed.use {
-        case (a, b) => a + b
+      val actual = managed.use { case (a, b) =>
+        a + b
       }
 
       actual mustBe 3
@@ -384,7 +395,8 @@ class ManagedEitherTest extends UnitSpec {
   "Pure[Either[String,_],_].use" should {
     "return the same resource each time" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -403,7 +415,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "never close the resource" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).unClosable)
           .build
 
@@ -419,7 +432,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "throw open errors during creation" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .failToOpen(new NoSuchElementException("Nope!"))
           .build
 
@@ -434,7 +448,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "return retrieve errors" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.throwing(new NoSuchElementException("Nope!")).canClose)
           .build
 
@@ -450,7 +465,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "return errors during use" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .build
 
@@ -471,7 +487,8 @@ class ManagedEitherTest extends UnitSpec {
   "Resource[Either[E,_],E,_].use" should {
     "open a new resource each time" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -585,7 +602,8 @@ class ManagedEitherTest extends UnitSpec {
   "FlatMapped[Either[E,_],E,_].use" should {
     "correctly sequence open -> use -> close" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -620,7 +638,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "close the outer resource, even if the inner resource fails to open" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .failToOpen(new NoSuchElementException("Nope!"))
           .build
@@ -632,7 +651,7 @@ class ManagedEitherTest extends UnitSpec {
         }
       }
 
-        managed.use(_.asRight) mustBe "Nope!".asLeft
+      managed.use(_.asRight) mustBe "Nope!".asLeft
 
       factory.history mustBe List(
         0 -> Record.SuccessfullyOpened(),
@@ -644,7 +663,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "close the outer resource, even if the inner resource fails during use" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.throwing(new NoSuchElementException("Nope!")).canClose)
           .build
@@ -670,7 +690,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "close the outer resource, even if the inner resource fails during close" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).unClosable)
           .build
@@ -698,17 +719,18 @@ class ManagedEitherTest extends UnitSpec {
   "Managed[Either[E,*], _]" should {
     "behave correctly with mapN" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
 
-      val managed = (manage.always(factory.open()), manage.always(factory.open())).mapN {
-        (r0, r1) => (r0.retrieve, r1.retrieve)
+      val managed = (manage.always(factory.open()), manage.always(factory.open())).mapN { (r0, r1) =>
+        (r0.retrieve, r1.retrieve)
       }
 
-      val actual = managed.use {
-        case (a, b) => (a + b).asRight
+      val actual = managed.use { case (a, b) =>
+        (a + b).asRight
       }
 
       actual mustBe 3.asRight
@@ -725,7 +747,8 @@ class ManagedEitherTest extends UnitSpec {
 
     "behave correctly inside a for-comprehension" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -736,8 +759,8 @@ class ManagedEitherTest extends UnitSpec {
           r1 <- manage.always(factory.open())
         } yield (r0.retrieve, r1.retrieve)
 
-      val actual = managed.use {
-        case (a, b) => (a + b).asRight
+      val actual = managed.use { case (a, b) =>
+        (a + b).asRight
       }
 
       actual mustBe 3.asRight
@@ -756,11 +779,12 @@ class ManagedEitherTest extends UnitSpec {
 
 class ManagedTryTest extends UnitSpec with TryValues {
   val manage: Managed.Factory[Try, Throwable] = Managed.factory[Try, Throwable]
-  
+
   "Pure[Try,Throwable,*].use" should {
     "return the same resource each time" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -779,7 +803,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "never close the resource" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).unClosable)
           .build
 
@@ -795,7 +820,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "throw open errors during creation" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .failToOpen(new NoSuchElementException("Nope!"))
           .build
 
@@ -810,7 +836,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "close over retrieve errors" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.throwing(new NoSuchElementException("Nope!")).canClose)
           .build
 
@@ -826,7 +853,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "throw errors during use" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .build
 
@@ -834,7 +862,7 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
       managed
         .use { value =>
-            throw new NoSuchElementException(s"Nope: ${value.retrieve}")
+          throw new NoSuchElementException(s"Nope: ${value.retrieve}")
         }
         .failure
         .exception
@@ -850,7 +878,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
   "Resource[Future,Throwable,_].use" should {
     "open a new resource each time" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -892,11 +921,11 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
       val managed = manage.always(factory.open())
 
-        managed
-          .use(r => Try(r.retrieve))
-          .failure
-          .exception
-          .getMessage mustBe "Nope!"
+      managed
+        .use(r => Try(r.retrieve))
+        .failure
+        .exception
+        .getMessage mustBe "Nope!"
 
       factory.history mustBe List(
         0 -> Record.SuccessfullyOpened(),
@@ -914,7 +943,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
       val managed = manage.always(factory.open())
 
-      managed.use(r => Try(r.retrieve))
+      managed
+        .use(r => Try(r.retrieve))
         .failure
         .exception
         .getMessage mustBe "Nope!"
@@ -971,7 +1001,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
   "FlatMapped[Try,Throwable,_].use" should {
     "correctly sequence open -> use -> close" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -1008,7 +1039,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "close the outer resource, even if the inner resource fails to open" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .failToOpen(new NoSuchElementException("Nope!"))
           .build
@@ -1032,7 +1064,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "close the outer resource, even if the inner resource fails during use" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.throwing(new NoSuchElementException("Nope!")).canClose)
           .build
@@ -1058,7 +1091,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
 
     "close the outer resource, even if the inner resource fails during close" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).unClosable)
           .build
@@ -1086,7 +1120,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
   "Managed[Try,Throwable,_]" should {
     "behave correctly inside a for-comprehension" in {
       val factory =
-        TestResourceFactory.builder[Int]
+        TestResourceFactory
+          .builder[Int]
           .open(_.returning(1).canClose)
           .open(_.returning(2).canClose)
           .build
@@ -1097,8 +1132,8 @@ class ManagedTryTest extends UnitSpec with TryValues {
           r1 <- manage.always(factory.open())
         } yield (r0.retrieve, r1.retrieve)
 
-      val actual = managed.use {
-        case (a, b) => Try(a + b)
+      val actual = managed.use { case (a, b) =>
+        Try(a + b)
       }
 
       actual.success.value mustBe 3
@@ -1115,64 +1150,62 @@ class ManagedTryTest extends UnitSpec with TryValues {
   }
 }
 
-/**
- * A closeable test resource that reports it's history back to it's [[TestResourceFactory]]
- *
- * This could be mocks, but despite the initial cost, this should be much easier to work with.
- */
-class TestResource[A](behavior: Either[Throwable, A],
-                      canClose: Boolean,
-                      reportAction: Record[A] => Complete) {
+/** A closeable test resource that reports it's history back to it's [[TestResourceFactory]]
+  *
+  * This could be mocks, but despite the initial cost, this should be much easier to work with.
+  */
+class TestResource[A](behavior: Either[Throwable, A], canClose: Boolean, reportAction: Record[A] => Complete) {
   private val closed: AtomicBoolean = new AtomicBoolean(false)
 
-  /**
-   * Depending on the configured behavior, return a value or throw an exception.
-   *
-   * Will always throw an exception if called after [[close()]]
-   */
+  /** Depending on the configured behavior, return a value or throw an exception.
+    *
+    * Will always throw an exception if called after [[close()]]
+    */
   def retrieve: A =
     if (closed.get()) {
       val ex = new AlreadyClosedException
       reportAction(Record.RetrieveAttemptedAfterClose())
       throw ex
-    } else
+    }
+    else
       behavior match {
         case Right(value) =>
           reportAction(Record.SuccessfullyRetrieved(value))
           value
-        case Left(error) =>
+        case Left(error)  =>
           reportAction(Record.FailedToRetrieve(error.getMessage))
           throw error
       }
 
-  /**
-   * Depending on the configured behavior, return a [[Complete]] or throw an exception.
-   *
-   * Will always throw an exception if called more than once.
-   */
+  /** Depending on the configured behavior, return a [[Complete]] or throw an exception.
+    *
+    * Will always throw an exception if called more than once.
+    */
   def close(): Complete =
     if (closed.getAndSet(true)) {
       reportAction(Record.CloseAttemptedAfterClose())
       throw new AlreadyClosedException
-    } else if (canClose) {
+    }
+    else if (canClose) {
       reportAction(Record.SuccessfullyClosed())
       Complete
-    } else {
+    }
+    else {
       val ex = new UnableToCloseException
       reportAction(Record.FailedToClose())
       throw ex
     }
 }
-object TestResource {
+object TestResource                                                                                           {
   implicit def idCloser[A]: Closer[Id, TestResource[A]] = _.close()
-  implicit def eitherCloser[A](implicit EM: ExceptionMapper[Either[String,*], String])
-  : Closer[Either[String, *], TestResource[A]] = r => EM.catchNonFatal(r.close())
+  implicit def eitherCloser[A]
+    (implicit EM: ExceptionMapper[Either[String, *], String])
+    : Closer[Either[String, *], TestResource[A]] = r => EM.catchNonFatal(r.close())
   implicit def tryCloser[A]: Closer[Try, TestResource[A]] = r => Try(r.close())
 }
 
-/**
- * A configurable factory which returns [[TestResource]] instances
- */
+/** A configurable factory which returns [[TestResource]] instances
+  */
 class TestResourceFactory[A](builders: Vector[Either[Throwable, ResourceBuilder.Ready[A]]]) {
   private val operationHistory: AtomicReference[Chain[(Int, Record[A])]] =
     new AtomicReference(Chain.empty)
@@ -1184,11 +1217,10 @@ class TestResourceFactory[A](builders: Vector[Either[Throwable, ResourceBuilder.
 
   private val resources = builders.map(_.map(_.behavior)).zipWithIndex.iterator
 
-  /**
-   * Depending on the behavior specified during building, return a [[TestResource]] or throw an exception.
-   *
-   * If [[open()]] is called more times than resources were specified, throws an [[OutOfElementsException]]
-   */
+  /** Depending on the behavior specified during building, return a [[TestResource]] or throw an exception.
+    *
+    * If [[open()]] is called more times than resources were specified, throws an [[OutOfElementsException]]
+    */
   def open(): TestResource[A] = resources.nextOption() match {
     case Some((Right((behavior, canClose)), resourceId)) =>
       record(resourceId, Record.SuccessfullyOpened())
@@ -1197,122 +1229,119 @@ class TestResourceFactory[A](builders: Vector[Either[Throwable, ResourceBuilder.
         canClose,
         record(resourceId, _)
       )
-    case Some((Left(openFailure), resourceId)) =>
+    case Some((Left(openFailure), resourceId))           =>
       record(resourceId, Record.FailedToOpen(openFailure.getMessage))
       throw openFailure
-    case None =>
+    case None                                            =>
       record(Int.MaxValue, Record.RanOutOfResources())
       throw new OutOfElementsException
   }
 
-  /**
-   * Retrieve a list of the recorded history records
-   *
-   * The [[Int]] values are the [[TestResource]] ids, which are monotonically increasing indexes.
-   */
+  /** Retrieve a list of the recorded history records
+    *
+    * The [[Int]] values are the [[TestResource]] ids, which are monotonically increasing indexes.
+    */
   def history: List[(Int, Record[A])] = operationHistory.get.toList
 
-  /**
-   * Insert a record in the history independent of any [[TestResource]].
-   *
-   * This can be handy for checking the sequence of actions related to [[Managed.use()]]
-   */
+  /** Insert a record in the history independent of any [[TestResource]].
+    *
+    * This can be handy for checking the sequence of actions related to [[Managed.use()]]
+    */
   def insertMarker(tag: String): Complete = record(-1, Record.Marker(tag))
 }
-object TestResourceFactory {
-  /**
-   * Initialize a builder
-   *
-   * Note: methods called on each instance are ordered, and will produce [[TestResource]] instances in the same
-   * order they were specified.
-   */
+object TestResourceFactory                                                                  {
+
+  /** Initialize a builder
+    *
+    * Note: methods called on each instance are ordered, and will produce [[TestResource]] instances in the same order
+    * they were specified.
+    */
   def builder[A]: FactoryBuilder[A] = new FactoryBuilder[A](Chain.empty)
 
-  final class FactoryBuilder[A](private val resources: Chain[Either[Throwable, ResourceBuilder.Ready[A]]]) extends AnyVal {
-    /**
-     * Specify a [[TestResource]] which will be successfully opened.
-     *
-     * The compiler will complain if the [[ResourceBuilder]] is not fully configured
-     */
+  final class FactoryBuilder[A](private val resources: Chain[Either[Throwable, ResourceBuilder.Ready[A]]])
+      extends AnyVal {
+
+    /** Specify a [[TestResource]] which will be successfully opened.
+      *
+      * The compiler will complain if the [[ResourceBuilder]] is not fully configured
+      */
     def open(f: ResourceBuilder.Uninitialized[A] => ResourceBuilder.Ready[A]): FactoryBuilder[A] =
       new FactoryBuilder[A](resources.append(f(ResourceBuilder.builder[A]).asRight))
 
-    /**
-     * Specify an attempt to open a resource which will fail.
-     */
+    /** Specify an attempt to open a resource which will fail.
+      */
     def failToOpen(throwable: Throwable): FactoryBuilder[A] =
       new FactoryBuilder[A](resources.append(throwable.asLeft))
 
-    /**
-     * Build and return the [[TestResourceFactory]]
-     */
+    /** Build and return the [[TestResourceFactory]]
+      */
     def build: TestResourceFactory[A] = new TestResourceFactory[A](resources.toVector)
   }
 
-  /**
-   * A configurable builder for [[TestResource]] instances.
-   */
-  final class ResourceBuilder[A, B <: Option[Either[Throwable, A]], C <: Option[Boolean]](private[TestResourceFactory] val valueOrException: B,
-                                                                                          private[TestResourceFactory] val canClose: C)
+  /** A configurable builder for [[TestResource]] instances.
+    */
+  final class ResourceBuilder[A, B <: Option[Either[Throwable, A]], C <: Option[Boolean]]
+    (private[TestResourceFactory] val valueOrException: B, private[TestResourceFactory] val canClose: C)
   object ResourceBuilder {
     def builder[A]: Uninitialized[A] = new ResourceBuilder[A, None.type, None.type](None, None)
 
-    type Uninitialized[A] = ResourceBuilder[A, None.type, None.type ]
+    type Uninitialized[A] = ResourceBuilder[A, None.type, None.type]
     type Ready[A] = ResourceBuilder[A, Some[Either[Throwable, A]], Some[Boolean]]
 
-    implicit final class RetrieveBehaviorOps[A, C <: Option[Boolean]](private val builder: ResourceBuilder[A, None.type, C]) extends AnyVal {
-      /**
-       * Indicates that calling [[TestResource.retrieve]] should return a value
-       */
+    implicit final class RetrieveBehaviorOps[A, C <: Option[Boolean]]
+      (private val builder: ResourceBuilder[A, None.type, C])
+        extends AnyVal {
+
+      /** Indicates that calling [[TestResource.retrieve]] should return a value
+        */
       def returning(value: A): ResourceBuilder[A, Some[Either[Throwable, A]], C] =
         new ResourceBuilder[A, Some[Either[Throwable, A]], C](Some(value.asRight), builder.canClose)
 
-      /**
-       * Indicates that calling [[TestResource.retrieve]] should throw an exception
-       */
+      /** Indicates that calling [[TestResource.retrieve]] should throw an exception
+        */
       def throwing(failure: Exception): ResourceBuilder[A, Some[Either[Throwable, A]], C] =
         new ResourceBuilder[A, Some[Either[Throwable, A]], C](Some(failure.asLeft), builder.canClose)
     }
 
-    implicit final class CloseBehaviorOps[A, B <: Option[Either[Throwable, A]]](private val builder: ResourceBuilder[A, B, None.type]) extends AnyVal {
-      /**
-       * Indicates that calling [[TestResource.close]] should succeed
-       */
+    implicit final class CloseBehaviorOps[A, B <: Option[Either[Throwable, A]]]
+      (private val builder: ResourceBuilder[A, B, None.type])
+        extends AnyVal {
+
+      /** Indicates that calling [[TestResource.close]] should succeed
+        */
       def canClose: ResourceBuilder[A, B, Some[Boolean]] =
         new ResourceBuilder[A, B, Some[Boolean]](builder.valueOrException, Some(true))
 
-      /**
-       * Indicates that calling [[TestResource.close()]] should fail
-       */
+      /** Indicates that calling [[TestResource.close()]] should fail
+        */
       def unClosable: ResourceBuilder[A, B, Some[Boolean]] =
         new ResourceBuilder[A, B, Some[Boolean]](builder.valueOrException, Some(false))
     }
 
     implicit final class ReadyOps[A](private val builder: Ready[A]) extends AnyVal {
-      /**
-       * Return the configured behavior for the [[TestResource]]
-       * @return
-       */
+
+      /** Return the configured behavior for the [[TestResource]]
+        * @return
+        */
       def behavior: (Either[Throwable, A], Boolean) = (builder.valueOrException.value, builder.canClose.value)
     }
   }
 
-  /**
-   * A record of what happened inside a [[TestResource]]
-   */
+  /** A record of what happened inside a [[TestResource]]
+    */
   sealed abstract class Record[A] extends Product with Serializable
   object Record {
     // 'ignored: Boolean = true' is a workaround for https://github.com/scalameta/scalafmt/issues/3304
-    final case class SuccessfullyOpened[A](ignored: Boolean = true) extends Record[A]
-    final case class FailedToOpen[A](error: String) extends Record[A]
-    final case class SuccessfullyRetrieved[A](value: A) extends Record[A]
-    final case class FailedToRetrieve[A](error: String) extends Record[A]
+    final case class SuccessfullyOpened[A](ignored: Boolean = true)          extends Record[A]
+    final case class FailedToOpen[A](error: String)                          extends Record[A]
+    final case class SuccessfullyRetrieved[A](value: A)                      extends Record[A]
+    final case class FailedToRetrieve[A](error: String)                      extends Record[A]
     final case class RetrieveAttemptedAfterClose[A](ignored: Boolean = true) extends Record[A]
-    final case class SuccessfullyClosed[A](ignored: Boolean = true) extends Record[A]
-    final case class FailedToClose[A](ignored: Boolean = true) extends Record[A]
-    final case class CloseAttemptedAfterClose[A](ignored: Boolean = true) extends Record[A]
-    final case class RanOutOfResources[A](ignored: Boolean = true) extends Record[A]
-    final case class Marker[A](tag: String) extends Record[A]
+    final case class SuccessfullyClosed[A](ignored: Boolean = true)          extends Record[A]
+    final case class FailedToClose[A](ignored: Boolean = true)               extends Record[A]
+    final case class CloseAttemptedAfterClose[A](ignored: Boolean = true)    extends Record[A]
+    final case class RanOutOfResources[A](ignored: Boolean = true)           extends Record[A]
+    final case class Marker[A](tag: String)                                  extends Record[A]
   }
 }
 

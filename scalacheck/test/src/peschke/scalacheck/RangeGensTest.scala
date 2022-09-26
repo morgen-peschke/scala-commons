@@ -14,32 +14,29 @@ class RangeGensTest extends PropSpec {
     } yield (a, b)
 
   property("RangeGens.inclusiveRanges should produce ranges entirely contained within min and max") {
-    forAll(bounds.flatMap(b => (inclusiveRanges _).tupled(b).map(b -> _))) {
-      case ((start, end), range) =>
-        range.start must be >= start
-        if (range.nonEmpty) {
-          range.last must be <= end
-        }
+    forAll(bounds.flatMap(b => (inclusiveRanges _).tupled(b).map(b -> _))) { case ((start, end), range) =>
+      range.start must be >= start
+      if (range.nonEmpty) {
+        range.last must be <= end
+      }
     }
   }
 
   property("RangeGens.exclusiveRanges should produce ranges entirely contained within min and max") {
-    forAll(bounds.flatMap(b => (exclusiveRanges _).tupled(b).map(b -> _))) {
-      case ((start, end), range) =>
-        range.start must be >= start
-        if (range.nonEmpty) {
-          range.last must be <= end
-        }
+    forAll(bounds.flatMap(b => (exclusiveRanges _).tupled(b).map(b -> _))) { case ((start, end), range) =>
+      range.start must be >= start
+      if (range.nonEmpty) {
+        range.last must be <= end
+      }
     }
   }
 
   property("RangeGens.ranges should produce ranges entirely contained within min and max") {
-    forAll(bounds.flatMap(b => (ranges _).tupled(b).map(b -> _))) {
-      case ((start, end), range) =>
-        range.start must be >= start
-        if (range.nonEmpty) {
-          range.last must be <= end
-        }
+    forAll(bounds.flatMap(b => (ranges _).tupled(b).map(b -> _))) { case ((start, end), range) =>
+      range.start must be >= start
+      if (range.nonEmpty) {
+        range.last must be <= end
+      }
     }
   }
 
@@ -56,11 +53,10 @@ class RangeGensTest extends PropSpec {
         b <- Gen.chooseNum(Int.MaxValue - 10, Int.MaxValue)
       } yield (a, b, "really long ranges")
 
-    forAll(Gen.oneOf(closeToMax, reallyLong)) {
-      case (start, end, _) =>
-        val gen    = ranges(start, end)
-        val values = List.fill(10)(gen.sample.value)
-        Inspectors.forAll(values)(_.length)
+    forAll(Gen.oneOf(closeToMax, reallyLong)) { case (start, end, _) =>
+      val gen = ranges(start, end)
+      val values = List.fill(10)(gen.sample.value)
+      Inspectors.forAll(values)(_.length)
     }
   }
 
@@ -75,7 +71,7 @@ class RangeGensTest extends PropSpec {
     "RangeGens.inclusiveRanges should act appropriately for problematic input"
   ) {
     forAll(problematicBounds) { (start, end) =>
-      val gen    = inclusiveRanges(start, end)
+      val gen = inclusiveRanges(start, end)
       val values = List.fill(10)(gen.sample.value)
       Inspectors.forAll(values)(_.length)
     }
@@ -85,7 +81,7 @@ class RangeGensTest extends PropSpec {
     "RangeGens.exclusiveRanges should act appropriately for problematic input"
   ) {
     forAll(problematicBounds) { (start, end) =>
-      val gen    = exclusiveRanges(start, end)
+      val gen = exclusiveRanges(start, end)
       val values = List.fill(10)(gen.sample.value)
       Inspectors.forAll(values)(_.length)
     }
@@ -94,31 +90,27 @@ class RangeGensTest extends PropSpec {
   // Can't use the full range of Int here due to what appears to be an issue with Range
   // see: https://github.com/scala/bug/issues/12635
   private val arbitraryRanges =
-    ranges(Int.MinValue / 2, Int.MaxValue / 2).map(r =>
-      if (r.step < 0) r.reverse else r
-    )
+    ranges(Int.MinValue / 2, Int.MaxValue / 2).map(r => if (r.step < 0) r.reverse else r)
 
   property("RangeGens.choose should produce elements entirely contained within the provided range") {
-    forAll(arbitraryRanges.flatMap(r => choose(r).map(r -> _))) {
-      case (range, i) =>
-        withClue(s"($range) contains ($i):") {
-          range.contains(i) mustBe true
-        }
+    forAll(arbitraryRanges.flatMap(r => choose(r).map(r -> _))) { case (range, i) =>
+      withClue(s"($range) contains ($i):") {
+        range.contains(i) mustBe true
+      }
     }
   }
 
   property("RangeGens.within should produce ranges that are subsets of the provided range") {
-    forAll(arbitraryRanges.flatMap(r => slices(r).map(r -> _))) {
-      case (reference, produced) =>
-        produced.step mustBe reference.step
-        withClue(s"($reference) contains (${produced.start}):") {
-          reference.contains(produced.start) mustBe true
+    forAll(arbitraryRanges.flatMap(r => slices(r).map(r -> _))) { case (reference, produced) =>
+      produced.step mustBe reference.step
+      withClue(s"($reference) contains (${produced.start}):") {
+        reference.contains(produced.start) mustBe true
+      }
+      if (produced.nonEmpty) {
+        withClue(s"($reference) contains (${produced.last}):") {
+          reference.contains(produced.last) mustBe true
         }
-        if (produced.nonEmpty) {
-          withClue(s"($reference) contains (${produced.last}):") {
-            reference.contains(produced.last) mustBe true
-          }
-        }
+      }
     }
   }
 }

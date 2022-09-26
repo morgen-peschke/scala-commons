@@ -10,22 +10,19 @@ import peschke.numeric.Bounded
 
 import scala.collection.immutable.NumericRange
 
-/** Various [[Gen]] factories to make working with [[NumericRange]] and
-  * [[org.scalacheck.Gen]] easier.
+/** Various [[Gen]] factories to make working with [[NumericRange]] and [[org.scalacheck.Gen]] easier.
   */
 trait NumericRangeGens {
   private val MaxLength = BigInt(Int.MaxValue - 1)
 
   // Ok to throw in this case, all we're doing is adding context to an existing exception (which we can't handle anyway)
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  private def buildRangeSafely[A](start: A, end: A, step: A, inclusive: Boolean)
-                                 (
-                                     implicit I: Integral[A],
-                                     A2BI:       Convertible[A, BigInt],
-                                     BI2A:       Convertible[BigInt, Option[A]])
+  private def buildRangeSafely[A]
+    (start:      A, end:            A, step:                      A, inclusive: Boolean)
+    (implicit I: Integral[A], A2BI: Convertible[A, BigInt], BI2A: Convertible[BigInt, Option[A]])
     : NumericRange[A] = {
     import I.{mkNumericOps, mkOrderingOps}
-    val stepForward    = step.abs
+    val stepForward = step.abs
     val normalizedStep = if (start < end) stepForward else -stepForward
 
     val length =
@@ -35,10 +32,9 @@ trait NumericRangeGens {
     val safeEnd =
       if (safeLength === length) end else start + (goodLength * normalizedStep)
 
-    try {
+    try
       if (inclusive) NumericRange.inclusive(start, safeEnd, normalizedStep)
       else NumericRange(start, safeEnd, normalizedStep)
-    }
     catch {
       case e: IllegalArgumentException =>
         throw new IllegalArgumentException(
@@ -50,15 +46,12 @@ trait NumericRangeGens {
 
   /** Generate [[NumericRange]] values within a subset of the domain of `A`
     *
-    * Other than producing `A` instead of [[Int]], this method should behave
-    * identically to [[RangeGens.inclusiveRanges()]]
+    * Other than producing `A` instead of [[Int]], this method should behave identically to
+    * [[RangeGens.inclusiveRanges()]]
     */
-  def inclusiveNumericRanges[A](min: A, max: A)
-                               (
-                                   implicit I: Integral[A],
-                                   C:          Gen.Choose[A],
-                                   ToBigInt:   Convertible[A, BigInt],
-                                   ToA:        Convertible[BigInt, Option[A]])
+  def inclusiveNumericRanges[A]
+    (min:        A, max:         A)
+    (implicit I: Integral[A], C: Gen.Choose[A], ToBigInt: Convertible[A, BigInt], ToA: Convertible[BigInt, Option[A]])
     : Gen[NumericRange[A]] = {
     import I.{mkNumericOps, mkOrderingOps}
     for {
@@ -70,17 +63,19 @@ trait NumericRangeGens {
 
   /** Generate [[NumericRange]] values within a subset of the domain of `A`
     *
-    * Other than producing `A` instead of [[Int]], this method should behave
-    * identically to [[RangeGens.exclusiveRanges()]]
+    * Other than producing `A` instead of [[Int]], this method should behave identically to
+    * [[RangeGens.exclusiveRanges()]]
     */
-  def exclusiveNumericRanges[A](min: A, max: A)
-                               (
-                                   implicit I: Integral[A],
-                                   C:          Gen.Choose[A],
-                                   ToBigInt:   Convertible[A, BigInt],
-                                   ToA:        Convertible[BigInt, Option[A]],
-                                   B:          Bounded[A],
-                                   E:          Eq[A])
+  def exclusiveNumericRanges[A]
+    (min:           A, max: A)
+    (
+        implicit I: Integral[A],
+        C:          Gen.Choose[A],
+        ToBigInt:   Convertible[A, BigInt],
+        ToA:        Convertible[BigInt, Option[A]],
+        B:          Bounded[A],
+        E:          Eq[A]
+    )
     : Gen[NumericRange[A]] = {
     import I.{mkNumericOps, mkOrderingOps}
     val safeMax = if (max === B.maximum) max - I.one else max
@@ -94,17 +89,19 @@ trait NumericRangeGens {
 
   /** Generate [[NumericRange]] values within a subset of the domain of `A`
     *
-    * Other than producing [[NumericRange]] instead of [[Range]], this method
-    * should behave identically to [[RangeGens.ranges()]]
+    * Other than producing [[NumericRange]] instead of [[Range]], this method should behave identically to
+    * [[RangeGens.ranges()]]
     */
-  def numericRanges[A](min: A, max: A)
-                      (
-                          implicit I: Integral[A],
-                          C:          Gen.Choose[A],
-                          ToBigInt:   Convertible[A, BigInt],
-                          ToA:        Convertible[BigInt, Option[A]],
-                          B:          Bounded[A],
-                          E:          Eq[A])
+  def numericRanges[A]
+    (min:           A, max: A)
+    (
+        implicit I: Integral[A],
+        C:          Gen.Choose[A],
+        ToBigInt:   Convertible[A, BigInt],
+        ToA:        Convertible[BigInt, Option[A]],
+        B:          Bounded[A],
+        E:          Eq[A]
+    )
     : Gen[NumericRange[A]] =
     Gen.oneOf(
       inclusiveNumericRanges(min, max),
@@ -113,11 +110,9 @@ trait NumericRangeGens {
 
   /** Generate `A` values bounded by a [[NumericRange]]
     *
-    * Other than not producing `A` values instead of [[Int]], this should behave
-    * identically to [[RangeGens.choose()]]
+    * Other than not producing `A` values instead of [[Int]], this should behave identically to [[RangeGens.choose()]]
     */
-  def chooseNumeric[A](range: NumericRange[A])(implicit A: Integral[A])
-    : Gen[A] =
+  def chooseNumeric[A](range: NumericRange[A])(implicit A: Integral[A]): Gen[A] =
     if (range.isEmpty) Gen.fail
     else
       Gen.choose(0, range.length - 1).map { stepCount =>
@@ -132,11 +127,9 @@ trait NumericRangeGens {
     if (range.isEmpty) Gen.const(0)
     else Gen.chooseNum(0, 1.max(range.length - 1))
 
-  /** Generate [[NumericRange]]s that are a subset of a reference
-    * [[NumericRange]]
+  /** Generate [[NumericRange]]s that are a subset of a reference [[NumericRange]]
     */
-  def slices[A](range: NumericRange[A])(implicit A: Integral[A])
-    : Gen[NumericRange[A]] = {
+  def slices[A](range: NumericRange[A])(implicit A: Integral[A]): Gen[NumericRange[A]] = {
     if (range.isEmpty) Gen.fail
     else
       for {
@@ -149,9 +142,8 @@ object NumericRangeGens extends NumericRangeGens {
 
   /** Wrapper around [[NumericRange]] to keep ScalaTest reporters happy.
     *
-    * If [[NumericRange.length]] exceeds [[Int.MaxValue]], a [[NumericRange]]
-    * can't print, which breaks ScalaTest's reporters. This class provides a way
-    * to avoid that by wrapping the range in something with a safer `toString`
+    * If [[NumericRange.length]] exceeds [[Int.MaxValue]], a [[NumericRange]] can't print, which breaks ScalaTest's
+    * reporters. This class provides a way to avoid that by wrapping the range in something with a safer `toString`
     */
   final case class PrettyRange[A](range: NumericRange[A]) {
     override def toString: String =
