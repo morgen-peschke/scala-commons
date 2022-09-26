@@ -23,7 +23,10 @@ val PropSpec = Set(
 val MUnit = ivy"org.scalameta::munit:0.7.29"
 
 trait StyleModule extends ScalafmtModule with ScalafixModule {
-  override def scalafixIvyDeps = super.scalafixIvyDeps() ++ Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
+  override def scalafixIvyDeps = super.scalafixIvyDeps() ++ Agg(
+    ivy"com.github.liancheng::organize-imports:0.6.0",
+    ivy"org.typelevel::typelevel-scalafix:0.1.5"
+  )
 
   def commonScalacOptions = Seq(
     "-encoding",
