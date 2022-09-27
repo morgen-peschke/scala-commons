@@ -30,15 +30,15 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
 
   private def l(implicit loc: At): Int = loc.line.value
 
-  "valueOf[Option[_]]" should {
+  "extract[Option[_]]" should {
     "succeed on a Some(_)" in {
-      valueOf(5.some) mustBe 5
+      extract(5.some) mustBe 5
     }
 
     "fail on a None" in {
       val cachedLoc = At.here
       try {
-        valueOf(Option.empty[Int])
+        extract(Option.empty[Int])
         fail("Should have failed")
       }
       catch {
@@ -49,15 +49,15 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
     }
   }
 
-  "valueOf[Either[_,_]]" should {
+  "extract[Either[_,_]]" should {
     "succeed on a Right(_)" in {
-      valueOf(Either.right[String, Int](5)) mustBe 5
+      extract(Either.right[String, Int](5)) mustBe 5
     }
 
     "fail on a Left(_)" in {
       val cachedLoc = At.here
       try {
-        valueOf(Either.left[String, Int]("oops!"))
+        extract(Either.left[String, Int]("oops!"))
         fail("Should have failed")
       }
       catch {
@@ -70,15 +70,15 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
     }
   }
 
-  "valueOf[IO]" should {
+  "extract[IO]" should {
     "succeed if the IO succeeds and none of the finalizers time out" in {
-      valueOf(IO.pure(5)) mustBe 5
+      extract(IO.pure(5)) mustBe 5
     }
 
     "fail if the IO fails" in {
       val cachedLoc = At.here
       try {
-        valueOf(IO.raiseError[Int](new SmallError("Oops!")))
+        extract(IO.raiseError[Int](new SmallError("Oops!")))
         fail("Should have failed")
       }
       catch {
@@ -93,7 +93,7 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
     "fail if the IO times out" in {
       val cachedLoc = At.here
       try {
-        valueOf(IO.sleep(quick).as(5))
+        extract(IO.sleep(quick).as(5))
         fail("Should have failed")
       }
       catch {
@@ -107,7 +107,7 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
       val long = IO.sleep(3.seconds)
       val cachedLoc = At.here
       try {
-        valueOf(IO.pure(5).guaranteeCase(_ => long))
+        extract(IO.pure(5).guaranteeCase(_ => long))
         fail("Should have failed")
       }
       catch {
@@ -122,7 +122,7 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
     "fail if the IO finalizers fail" in {
       val cachedLoc = At.here
       try {
-        valueOf(
+        extract(
           IO.pure(5).guaranteeCase(_ => IO.raiseError(new SmallError("Oops!")))
         )
         fail("Should have failed")
@@ -137,15 +137,15 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
     }
   }
 
-  "valueOf[Future]" should {
+  "extract[Future]" should {
     "succeed if the Future succeeds" in {
-      valueOf(Future.successful(5)) mustBe 5
+      extract(Future.successful(5)) mustBe 5
     }
 
     "fail if the Future fails" in {
       val cachedLoc = At.here
       try {
-        valueOf(Future.failed[Int](new SmallError("Oops!")))
+        extract(Future.failed[Int](new SmallError("Oops!")))
         fail("Should have failed")
       }
       catch {
@@ -162,7 +162,7 @@ class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaT
 
       val cachedLoc = At.here
       try {
-        valueOf(sleepFor(10.seconds))
+        extract(sleepFor(10.seconds))
         fail("Should have failed")
       }
       catch {
