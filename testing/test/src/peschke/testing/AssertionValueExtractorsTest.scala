@@ -27,14 +27,14 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
   private def path(implicit loc: Location): String = loc.path
   private def l(implicit loc: Location): Int = loc.line
 
-  test("valueOf[Option[_]] should succeed on a Some(_)") {
-    assertEquals(valueOf(5.some), 5)
+  test("extract[Option[_]] should succeed on a Some(_)") {
+    assertEquals(extract(5.some), 5)
   }
 
-  test("valueOf[Option] should fail on a None") {
+  test("extract[Option] should fail on a None") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(Option.empty[Int])
+      extract(Option.empty[Int])
       fail("Should have failed")
     }
     catch {
@@ -47,14 +47,14 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[Either[_,_]] should succeed on a Right(_)") {
-    assertEquals(valueOf(Either.right[String, Int](5)), 5)
+  test("extract[Either[_,_]] should succeed on a Right(_)") {
+    assertEquals(extract(Either.right[String, Int](5)), 5)
   }
 
-  test("valueOf[Either[_,_]] should fail on a Left(_)") {
+  test("extract[Either[_,_]] should fail on a Left(_)") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(Either.left[String, Int]("oops!"))
+      extract(Either.left[String, Int]("oops!"))
       fail("Should have failed")
     }
     catch {
@@ -67,14 +67,14 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[Validated[_,_]] should succeed on a Valid(_)") {
-    assertEquals(valueOf(5.valid[String]), 5)
+  test("extract[Validated[_,_]] should succeed on a Valid(_)") {
+    assertEquals(extract(5.valid[String]), 5)
   }
 
-  test("valueOf[Validated[_,_]] should fail on an Invalid(_)") {
+  test("extract[Validated[_,_]] should fail on an Invalid(_)") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf("oops!".invalid[Int])
+      extract("oops!".invalid[Int])
       fail("Should have failed")
     }
     catch {
@@ -87,14 +87,14 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[Try[_]] should succeed on a Success(_)") {
-    assertEquals(valueOf(Try(5)), 5)
+  test("extract[Try[_]] should succeed on a Success(_)") {
+    assertEquals(extract(Try(5)), 5)
   }
 
-  test("valueOf[Try[_]] should fail on a Failure(_)") {
+  test("extract[Try[_]] should fail on a Failure(_)") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(Failure(new SmallError("oops!")): Try[Int])
+      extract(Failure(new SmallError("oops!")): Try[Int])
       fail("Should have failed")
     }
     catch {
@@ -107,14 +107,14 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[IO] should succeed if the IO succeeds and none of the finalizers time out") {
-    assertEquals(valueOf(IO.pure(5)), 5)
+  test("extract[IO] should succeed if the IO succeeds and none of the finalizers time out") {
+    assertEquals(extract(IO.pure(5)), 5)
   }
 
-  test("valueOf[IO] should fail if the IO fails") {
+  test("extract[IO] should fail if the IO fails") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(IO.raiseError[Int](new SmallError("Oops!")))
+      extract(IO.raiseError[Int](new SmallError("Oops!")))
       fail("Should have failed")
     }
     catch {
@@ -127,10 +127,10 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[IO] should fail if the IO times out") {
+  test("extract[IO] should fail if the IO times out") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(IO.sleep(quick).as(5))
+      extract(IO.sleep(quick).as(5))
       fail("Should have failed")
     }
     catch {
@@ -143,11 +143,11 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[IO] should fail if the IO finalizers time out") {
+  test("extract[IO] should fail if the IO finalizers time out") {
     val long = IO.sleep(3.seconds)
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(IO.pure(5).guaranteeCase(_ => long))
+      extract(IO.pure(5).guaranteeCase(_ => long))
       fail("Should have failed")
     }
     catch {
@@ -160,10 +160,10 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[IO] should fail if the IO finalizers fail") {
+  test("extract[IO] should fail if the IO finalizers fail") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(
+      extract(
         IO.pure(5).guaranteeCase(_ => IO.raiseError(new SmallError("Oops!")))
       )
       fail("Should have failed")
@@ -178,14 +178,14 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[Future] should succeed if the Future succeeds") {
-    assertEquals(valueOf(Future.successful(5)), 5)
+  test("extract[Future] should succeed if the Future succeeds") {
+    assertEquals(extract(Future.successful(5)), 5)
   }
 
-  test("valueOf[Future] should fail if the Future fails") {
+  test("extract[Future] should fail if the Future fails") {
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(Future.failed[Int](new SmallError("Oops!")))
+      extract(Future.failed[Int](new SmallError("Oops!")))
       fail("Should have failed")
     }
     catch {
@@ -198,11 +198,11 @@ class AssertionValueExtractorsTest extends munit.FunSuite with AssertionValueExt
     }
   }
 
-  test("valueOf[Future] should fail if the Future times out") {
+  test("extract[Future] should fail if the Future times out") {
     def sleepFor(fd: FiniteDuration) = Future(Thread.sleep(fd.toMillis)).as(5)
     val cachedLoc = implicitly[Location]
     try {
-      valueOf(sleepFor(10.seconds))
+      extract(sleepFor(10.seconds))
       fail("Should have failed")
     }
     catch {

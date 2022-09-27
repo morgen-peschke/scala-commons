@@ -40,7 +40,7 @@ trait ValueExtractor[F[_]] {
     * @tparam Loc
     *   the type the test framework uses to track failure locations
     */
-  def valueOf[A, Loc](fa: sourcecode.Text[F[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A
+  def extract[A, Loc](fa: sourcecode.Text[F[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A
 }
 
 object ValueExtractor {
@@ -67,7 +67,7 @@ object ValueExtractor {
     *   the type the test framework uses to track failure locations
     */
   trait Syntax[Loc] {
-    def valueOf[F[_], A]
+    def extract[F[_], A]
       (fa:             sourcecode.Text[F[A]])
       (
           implicit VE: ValueExtractor[F],
@@ -78,18 +78,18 @@ object ValueExtractor {
           loc:         At.To[Loc]
       )
       : A =
-      VE.valueOf(fa)(At.here, fail, loc)
+      VE.extract(fa)(At.here, fail, loc)
   }
 
   implicit val optionCanExtractValue: ValueExtractor[Option] =
     new ValueExtractor[Option] {
-      override def valueOf[A, Loc](fa: sourcecode.Text[Option[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A =
+      override def extract[A, Loc](fa: sourcecode.Text[Option[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A =
         fa.value.getOrElse(fail("was None", fa, Loc.from(at)))
     }
 
   implicit def eitherCanExtractValue[L: Show]: ValueExtractor[Either[L, *]] =
     new ValueExtractor[Either[L, *]] {
-      override def valueOf[A, Loc]
+      override def extract[A, Loc]
         (fa:          sourcecode.Text[Either[L, A]])
         (implicit at: At, fail: Fail[Loc], Loc: At.To[Loc])
         : A =
@@ -100,7 +100,7 @@ object ValueExtractor {
 
   implicit def validatedCanExtractValue[L: Show]: ValueExtractor[Validated[L, *]] =
     new ValueExtractor[Validated[L, *]] {
-      override def valueOf[A, Loc](fa: Text[Validated[L, A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A =
+      override def extract[A, Loc](fa: Text[Validated[L, A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A =
         fa.value.valueOr { l =>
           fail(show"was an Invalid($l) rather than a Valid(_)", fa, Loc.from(at))
         }
@@ -108,7 +108,7 @@ object ValueExtractor {
 
   implicit val tryCanExtractValue: ValueExtractor[Try] =
     new ValueExtractor[Try] {
-      override def valueOf[A, Loc](fa: Text[Try[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A =
+      override def extract[A, Loc](fa: Text[Try[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A =
         fa.value match {
           case Failure(ex)    =>
             fail(
@@ -123,7 +123,7 @@ object ValueExtractor {
 
   implicit def IOCanExtractValue(implicit timeouts: ValueExtractor.Timeouts, runtime: IORuntime): ValueExtractor[IO] =
     new ValueExtractor[IO] {
-      override def valueOf[A, Loc](fa: sourcecode.Text[IO[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A = {
+      override def extract[A, Loc](fa: sourcecode.Text[IO[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A = {
         val limit = timeouts.primary
         val total = timeouts.total
         Either
@@ -153,7 +153,7 @@ object ValueExtractor {
 
   implicit def FutureCanExtractValue(implicit timeouts: ValueExtractor.Timeouts): ValueExtractor[Future] =
     new ValueExtractor[Future] {
-      override def valueOf[A, Loc](fa: sourcecode.Text[Future[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A = {
+      override def extract[A, Loc](fa: sourcecode.Text[Future[A]])(implicit at: At, fail: Fail[Loc], Loc: At.To[Loc]): A = {
         val limit = timeouts.total
 
         def futureTimedOut: (String, Option[Throwable]) =
