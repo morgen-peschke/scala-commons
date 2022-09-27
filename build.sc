@@ -74,7 +74,7 @@ trait CommonModule
 
   override def artifactName: T[String] = T { s"commons-${super.artifactName()}" }
 
-  def publishVersion: T[String] = "0.2.0"
+  def publishVersion: T[String] = "0.3.0"
 
   override def pomSettings: T[PomSettings] = PomSettings(
     description = "Scala Commons - common utilities for Scala projects",
