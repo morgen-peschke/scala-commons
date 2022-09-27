@@ -3,8 +3,7 @@ package peschke.collections.range
 import scala.collection.immutable.NumericRange
 
 object syntax {
-  implicit final class ScalaCommonsRangeOps(private val range: Range)
-      extends AnyVal {
+  implicit final class ScalaCommonsRangeOps(private val range: Range) extends AnyVal {
 
     /** The inverse of [[Range.drop]]
       *
@@ -35,18 +34,14 @@ object syntax {
     def unshift(steps: Int): Range = RangeUtils.unshift(range, steps)
   }
 
-  implicit final class ScalaCommonsNumericRangeOps[N]
-    (private val range: NumericRange[N])
-      extends AnyVal {
+  implicit final class ScalaCommonsNumericRangeOps[N](private val range: NumericRange[N]) extends AnyVal {
 
-    /** Specialization of [[NumericRange.slice]], returning a [[NumericRange]]
-      * instead of an [[IndexedSeq]]
+    /** Specialization of [[NumericRange.slice]], returning a [[NumericRange]] instead of an [[IndexedSeq]]
       *
       * @see
       *   [[RangeUtils.shiftNumeric]]
       */
-    def sliceRange(from: Int, until: Int)(implicit I: Integral[N])
-      : NumericRange[N] =
+    def sliceRange(from: Int, until: Int)(implicit I: Integral[N]): NumericRange[N] =
       RangeUtils.sliceNumeric(range, from, until)
 
     /** The inverse of [[NumericRange.drop]]

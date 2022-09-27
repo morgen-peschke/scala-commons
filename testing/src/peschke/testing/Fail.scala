@@ -28,7 +28,5 @@ trait Fail[Loc] {
     * @param at
     *   where the test failed
     */
-  def apply[A]
-    (msg: String, sourceInfo: sourcecode.Text[A], cause: Throwable, at: Loc)
-    : Nothing
+  def apply[A](msg: String, sourceInfo: sourcecode.Text[A], cause: Throwable, at: Loc): Nothing
 }

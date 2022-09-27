@@ -12,8 +12,8 @@ object RangeUtils {
     else Range(start, end, step)
 
   private def copyNumeric[N]
-    (range: NumericRange[N])
-    (start: N = range.start, end: N = range.end, step: N = range.step) // scalafix:ok DisableSyntax.defaultArgs
+    (range:      NumericRange[N])
+    (start:      N = range.start, end: N = range.end, step: N = range.step) // scalafix:ok DisableSyntax.defaultArgs
     (implicit I: Integral[N])
     : NumericRange[N] =
     if (range.isInclusive) NumericRange.inclusive(start, end, step)
@@ -39,8 +39,8 @@ object RangeUtils {
     *
     * Equivalent to `range.growRight(n).drop(n)`
     *
-    * Note: with the exception of situations where intermediate values would
-    * overflow or underflow, [[shift]] and [[unshift]] are inverse operations
+    * Note: with the exception of situations where intermediate values would overflow or underflow, [[shift]] and
+    * [[unshift]] are inverse operations
     */
   def shift(range: Range, steps: Int): Range =
     if (steps <= 0) range
@@ -66,14 +66,11 @@ object RangeUtils {
       )
     }
 
-  /** Specialization of [[NumericRange.slice]], returning a [[NumericRange]]
-    * instead of an [[IndexedSeq]]
+  /** Specialization of [[NumericRange.slice]], returning a [[NumericRange]] instead of an [[IndexedSeq]]
     *
     * Equivalent to `r.drop(from).take(until - from)`
     */
-  def sliceNumeric[N](range:      NumericRange[N], from: Int, until: Int)
-                     (implicit I: Integral[N])
-    : NumericRange[N] =
+  def sliceNumeric[N](range: NumericRange[N], from: Int, until: Int)(implicit I: Integral[N]): NumericRange[N] =
     if (from <= 0) range.take(until)
     else if (until >= range.length) range.drop(from)
     else {
@@ -90,39 +87,28 @@ object RangeUtils {
     *
     * Extends the range start such that `range.grow(n).drop(n) == range`
     */
-  def growNumeric[N](range:      NumericRange[N], steps: Int)
-                    (implicit I: Integral[N])
-    : NumericRange[N] =
+  def growNumeric[N](range: NumericRange[N], steps: Int)(implicit I: Integral[N]): NumericRange[N] =
     if (steps <= 0) range
     else
-      copyNumeric(range)(start =
-        I.minus(range.start, I.times(range.step, I.fromInt(steps)))
-      )
+      copyNumeric(range)(start = I.minus(range.start, I.times(range.step, I.fromInt(steps))))
 
   /** The inverse of [[NumericRange.dropRight]]
     *
     * Extends the range end such that `range.growRight(n).dropRight(n) == range`
     */
-  def growNumericRight[N](range:      NumericRange[N], steps: Int)
-                         (implicit I: Integral[N])
-    : NumericRange[N] =
+  def growNumericRight[N](range: NumericRange[N], steps: Int)(implicit I: Integral[N]): NumericRange[N] =
     if (steps <= 0) range
     else
-      copyNumeric(range)(end =
-        I.plus(range.end, I.times(range.step, I.fromInt(steps)))
-      )
+      copyNumeric(range)(end = I.plus(range.end, I.times(range.step, I.fromInt(steps))))
 
   /** Shift the entire range by a number of steps
     *
     * Equivalent to `range.drop(n).growRight(n)`
     *
-    * Note: with the exception of situations where intermediate values would
-    * overflow or underflow, [[shiftNumeric]] and [[unshiftNumeric]] are inverse
-    * operations
+    * Note: with the exception of situations where intermediate values would overflow or underflow, [[shiftNumeric]] and
+    * [[unshiftNumeric]] are inverse operations
     */
-  def shiftNumeric[N](range:      NumericRange[N], steps: Int)
-                     (implicit I: Integral[N])
-    : NumericRange[N] =
+  def shiftNumeric[N](range: NumericRange[N], steps: Int)(implicit I: Integral[N]): NumericRange[N] =
     if (steps <= 0) range
     else {
       val offset = I.times(range.step, I.fromInt(steps))
@@ -134,12 +120,9 @@ object RangeUtils {
 
   /** Shift the entire range by a number of steps
     *
-    * Equivalent to `range.dropRight(n).grow(n)`, and the inverse of
-    * [[shiftNumeric]]
+    * Equivalent to `range.dropRight(n).grow(n)`, and the inverse of [[shiftNumeric]]
     */
-  def unshiftNumeric[N](range:      NumericRange[N], steps: Int)
-                       (implicit I: Integral[N])
-    : NumericRange[N] =
+  def unshiftNumeric[N](range: NumericRange[N], steps: Int)(implicit I: Integral[N]): NumericRange[N] =
     if (steps <= 0) range
     else {
       val offset = I.times(range.step, I.fromInt(steps))

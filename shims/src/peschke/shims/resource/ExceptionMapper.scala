@@ -8,20 +8,20 @@ import scala.concurrent.Future
 import scala.util.Try
 import scala.util.control.NonFatal
 
-/** Something like [[cats.ApplicativeError]], specialized for our particular use
-  * case.
+/** Something like [[cats.ApplicativeError]], specialized for our particular use case.
   *
   * Specifically: the need to easily adapt a [[Throwable]] into an `E`
   */
 trait ExceptionMapper[F[_], E] {
-  def catchNonFatal[A](a:   => A):    F[A]
+  def catchNonFatal[A](a: => A): F[A]
   def catchNonFatalF[A](fa: => F[A]): F[A]
 }
-object ExceptionMapper {
+object ExceptionMapper         {
   def apply[F[_], E](implicit EM: ExceptionMapper[F, E]): EM.type = EM
 
-  def usingApplicativeError[F[_], E](mapErrorIfPossible: Throwable => Option[E])
-                                    (implicit AE:        ApplicativeError[F, E])
+  def usingApplicativeError[F[_], E]
+    (mapErrorIfPossible: Throwable => Option[E])
+    (implicit AE:        ApplicativeError[F, E])
     : ExceptionMapper[F, E] =
     new ExceptionMapper[F, E] {
       override def catchNonFatal[A](a: => A): F[A] = catchNonFatalF(a.pure[F])

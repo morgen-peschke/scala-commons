@@ -8,17 +8,8 @@ import org.scalatest.propspec.AnyPropSpec
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-trait UnitSpec
-    extends AnyWordSpec
-    with Matchers
-    with EitherValues
-    with OptionValues
+trait UnitSpec extends AnyWordSpec with Matchers with EitherValues with OptionValues
 
-trait PropSpec
-    extends AnyPropSpec
-    with Matchers
-    with EitherValues
-    with OptionValues
-    with ScalaCheckDrivenPropertyChecks {
+trait PropSpec extends AnyPropSpec with Matchers with EitherValues with OptionValues with ScalaCheckDrivenPropertyChecks {
   implicit def noShrink[A]: Shrink[A] = Shrink.shrinkAny
 }

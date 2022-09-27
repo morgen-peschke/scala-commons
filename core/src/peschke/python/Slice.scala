@@ -23,8 +23,7 @@ sealed abstract class Slice extends Product with Serializable {
   def step: Long
 }
 object Slice {
-  def apply(startOpt: Option[Long], endOpt: Option[Long], stepOpt: Option[Long])
-    : Slice = {
+  def apply(startOpt: Option[Long], endOpt: Option[Long], stepOpt: Option[Long]): Slice = {
     val step = stepOpt.getOrElse(1L)
     (startOpt, endOpt) match {
       case (Some(start), Some(end)) => SubSlice(start, end, step)

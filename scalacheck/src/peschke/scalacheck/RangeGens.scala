@@ -3,8 +3,7 @@ package peschke.scalacheck
 import cats.syntax.eq._
 import org.scalacheck.Gen
 
-/** Various [[Gen]] factories to make working with [[Range]] and
-  * [[org.scalacheck.Gen]] easier.
+/** Various [[Gen]] factories to make working with [[Range]] and [[org.scalacheck.Gen]] easier.
   */
 trait RangeGens {
 
@@ -14,8 +13,8 @@ trait RangeGens {
     *
     * This produces only [[Range.Inclusive]] values.
     *
-    * Note: to avoid running afoul of the invariants on [[Range]], elements with
-    * index past [[Int.MaxValue]] will be dropped
+    * Note: to avoid running afoul of the invariants on [[Range]], elements with index past [[Int.MaxValue]] will be
+    * dropped
     *
     * @param min
     *   Inclusive minimum for [[Range.start]]
@@ -36,11 +35,9 @@ trait RangeGens {
     *
     * This produces only [[Range.Exclusive]] values.
     *
-    * Note: to avoid running afoul of the invariants on [[Range]], the following
-    * normalization is done:
-    *   - If `max` is [[Int.MaxValue]], `max - 1` will be used instead. If `min`
-    *     is [[Int.MaxValue]], it will also be lowered to avoid issues with
-    *     [[Gen.chooseNum()]]
+    * Note: to avoid running afoul of the invariants on [[Range]], the following normalization is done:
+    *   - If `max` is [[Int.MaxValue]], `max - 1` will be used instead. If `min` is [[Int.MaxValue]], it will also be
+    *     lowered to avoid issues with [[Gen.chooseNum()]]
     *   - Elements with index past [[Int.MaxValue]] will be dropped
     *
     * @param min
@@ -65,9 +62,8 @@ trait RangeGens {
     *
     * This produces both [[Range.Inclusive]] and [[Range.Exclusive]] values.
     *
-    * Note: to avoid running a foul of the invariants of [[Range]],
-    * normalization is applied. See [[inclusiveRanges()]] and
-    * [[exclusiveRanges()]] for details.
+    * Note: to avoid running a foul of the invariants of [[Range]], normalization is applied. See [[inclusiveRanges()]]
+    * and [[exclusiveRanges()]] for details.
     *
     * @param min
     *   Inclusive minimum for [[Range.start]]
@@ -90,8 +86,8 @@ trait RangeGens {
 
   /** Generate [[Int]] values bounded by a [[Range]]
     *
-    * Values will honor [[Range.step]], so [[Range.contains]] should return
-    * `true` for all values produced by this [[Gen]]
+    * Values will honor [[Range.step]], so [[Range.contains]] should return `true` for all values produced by this
+    * [[Gen]]
     */
   def choose(range: Range): Gen[Int] =
     if (range.isEmpty) Gen.fail

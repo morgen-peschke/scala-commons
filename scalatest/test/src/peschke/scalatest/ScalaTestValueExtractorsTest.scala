@@ -15,20 +15,15 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
 import scala.util.control.NoStackTrace
 
-class SmallError(msg: String)
-    extends IllegalArgumentException(msg)
-    with NoStackTrace
+class SmallError(msg: String) extends IllegalArgumentException(msg) with NoStackTrace
 
-class ScalaTestValueExtractorsTest
-    extends AnyWordSpec
-    with Matchers
-    with ScalaTestValueExtractors {
+class ScalaTestValueExtractorsTest extends AnyWordSpec with Matchers with ScalaTestValueExtractors {
   implicit private val runtime: IORuntime = IORuntime.global
   implicit private val executionContext: ExecutionContext =
     ExecutionContext.global
 
   private val rightAway = 1.seconds
-  private val quick     = 2.seconds
+  private val quick = 2.seconds
   implicit val timeouts: Timeouts = Timeouts(rightAway, rightAway)
 
   private def path(implicit loc: At): String = loc.path.value
@@ -109,7 +104,7 @@ class ScalaTestValueExtractorsTest
     }
 
     "fail if the IO finalizers time out" in {
-      val long      = IO.sleep(3.seconds)
+      val long = IO.sleep(3.seconds)
       val cachedLoc = At.here
       try {
         valueOf(IO.pure(5).guaranteeCase(_ => long))

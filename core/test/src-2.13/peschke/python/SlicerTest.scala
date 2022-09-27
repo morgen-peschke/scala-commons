@@ -65,33 +65,32 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
               .vector(0 to 20)
           )
           .map(_.map(_.length))
-      } {
-        case ((startOpt, endOpt, stepOpt), length) =>
-          val scalaResult = Slicer.indices(
-            Slice(
-              startOpt.map(_.toLong),
-              endOpt.map(_.toLong),
-              stepOpt.map(_.toLong)
-            ),
-            length
-          )
+      } { case ((startOpt, endOpt, stepOpt), length) =>
+        val scalaResult = Slicer.indices(
+          Slice(
+            startOpt.map(_.toLong),
+            endOpt.map(_.toLong),
+            stepOpt.map(_.toLong)
+          ),
+          length
+        )
 
-          val interpreter = new PythonInterpreter();
-          interpreter.set("start", startOpt.map(JInt.valueOf).orNull)
-          interpreter.set("end", endOpt.map(JInt.valueOf).orNull)
-          interpreter.set("step", stepOpt.map(JInt.valueOf).orNull)
-          interpreter.set("length", JInt.valueOf(length))
-          interpreter.exec(
-            "(rStart, rEnd, rStep) = slice(start,end,step).indices(length)"
-          )
-          val rStart       = interpreter.get("rStart").asInt.toLong
-          val rEnd         = interpreter.get("rEnd").asInt.toLong
-          val rStep        = interpreter.get("rStep").asInt.toLong
-          val pythonResult = rStart until rEnd by rStep
+        val interpreter = new PythonInterpreter();
+        interpreter.set("start", startOpt.map(JInt.valueOf).orNull)
+        interpreter.set("end", endOpt.map(JInt.valueOf).orNull)
+        interpreter.set("step", stepOpt.map(JInt.valueOf).orNull)
+        interpreter.set("length", JInt.valueOf(length))
+        interpreter.exec(
+          "(rStart, rEnd, rStep) = slice(start,end,step).indices(length)"
+        )
+        val rStart = interpreter.get("rStart").asInt.toLong
+        val rEnd = interpreter.get("rEnd").asInt.toLong
+        val rStep = interpreter.get("rStep").asInt.toLong
+        val pythonResult = rStart until rEnd by rStep
 
-          Inside.inside((scalaResult, pythonResult)) {
-            case (actual, expected) => actual mustBe expected
-          }
+        Inside.inside((scalaResult, pythonResult)) { case (actual, expected) =>
+          actual mustBe expected
+        }
       }
   }
 
@@ -127,8 +126,8 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
       ("[-100:100:2]", Chain(0, 2, 4))
     )
 
-    "produce the expected values for the input" in forAll(slicesToElements) {
-      (slice, expected) => input.in(slice.parseSlice) mustBe expected
+    "produce the expected values for the input" in forAll(slicesToElements) { (slice, expected) =>
+      input.in(slice.parseSlice) mustBe expected
     }
   }
 
@@ -138,34 +137,33 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
     : Unit = {
     s"Slicer[${tt.tpe}].in" should {
       "conform to the reference implementation" in
-        GenChecks.forAll(SlicerTest.scalaAndPythonSlices(targets)) {
-          case ((startOpt, endOpt, stepOpt), scalaTarget) =>
-            val scalaResult = scalaTarget.in(
-              Slice(
-                startOpt.map(_.toLong),
-                endOpt.map(_.toLong),
-                stepOpt.map(_.toLong)
-              )
+        GenChecks.forAll(SlicerTest.scalaAndPythonSlices(targets)) { case ((startOpt, endOpt, stepOpt), scalaTarget) =>
+          val scalaResult = scalaTarget.in(
+            Slice(
+              startOpt.map(_.toLong),
+              endOpt.map(_.toLong),
+              stepOpt.map(_.toLong)
             )
+          )
 
-            val interpreter = new PythonInterpreter();
-            interpreter.set(
-              "target",
-              scalaTarget.toList.map(JInt.valueOf).toArray
-            )
-            interpreter.set("start", startOpt.map(JInt.valueOf).orNull)
-            interpreter.set("end", endOpt.map(JInt.valueOf).orNull)
-            interpreter.set("step", stepOpt.map(JInt.valueOf).orNull)
-            interpreter.exec("result = target[start:end:step]")
-            val pythonResult =
-              interpreter
-                .get("result")
-                .asIterable()
-                .asScala
-                .map(_.asInt)
-                .toList
+          val interpreter = new PythonInterpreter();
+          interpreter.set(
+            "target",
+            scalaTarget.toList.map(JInt.valueOf).toArray
+          )
+          interpreter.set("start", startOpt.map(JInt.valueOf).orNull)
+          interpreter.set("end", endOpt.map(JInt.valueOf).orNull)
+          interpreter.set("step", stepOpt.map(JInt.valueOf).orNull)
+          interpreter.exec("result = target[start:end:step]")
+          val pythonResult =
+            interpreter
+              .get("result")
+              .asIterable()
+              .asScala
+              .map(_.asInt)
+              .toList
 
-            scalaResult.toList mustBe pythonResult
+          scalaResult.toList mustBe pythonResult
         }
     }
   }
@@ -175,8 +173,7 @@ class SlicerTest extends TableSpec with SliceTestSyntax {
   checkAgainstReference[Vector]((0 to 20).choose.gen.vector(0 to 20))
 }
 object SlicerTest {
-  def scalaAndPythonSlices[C[_]: Foldable](targets: Gen[C[Int]])
-    : Gen[((Option[Int], Option[Int], Option[Int]), C[Int])] =
+  def scalaAndPythonSlices[C[_]: Foldable](targets: Gen[C[Int]]): Gen[((Option[Int], Option[Int], Option[Int]), C[Int])] =
     targets.flatMap { target =>
       val targetRange = target.toList.indices
       val wideRange =

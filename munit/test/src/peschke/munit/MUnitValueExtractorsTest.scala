@@ -12,26 +12,22 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.NoStackTrace
 
-class SmallError(msg: String)
-    extends IllegalArgumentException(msg)
-    with NoStackTrace
+class SmallError(msg: String) extends IllegalArgumentException(msg) with NoStackTrace
 
-class MUnitValueExtractorsTest
-    extends munit.FunSuite
-    with MUnitValueExtractors {
+class MUnitValueExtractorsTest extends munit.FunSuite with MUnitValueExtractors {
   implicit private val runtime: IORuntime = IORuntime.global
   implicit private val executionContext: ExecutionContext =
     ExecutionContext.global
 
   private val rightAway = 1.seconds
-  private val quick     = 2.seconds
+  private val quick = 2.seconds
   implicit val timeouts: Timeouts = Timeouts(rightAway, rightAway)
 
   private def path(implicit loc: Location): String = loc.path
-  private def l(implicit loc: Location):    Int    = loc.line
+  private def l(implicit loc: Location): Int = loc.line
   private val <<< = "\u001b[7m" // Terminal control to start highlighting text
   private val >>> = "\u001b[0m" // Terminal control to stop highlighting text
-  private val ___ = "" // For padding, to make writing the expected results much, much, easier.
+  private val ___ = ""          // For padding, to make writing the expected results much, much, easier.
 
   test("valueOf[Option[_]] should succeed on a Some(_)") {
     assertEquals(valueOf(5.some), 5)
@@ -122,7 +118,7 @@ class MUnitValueExtractorsTest
   }
 
   test("valueOf[IO] should fail if the IO finalizers time out") {
-    val long      = IO.sleep(3.seconds)
+    val long = IO.sleep(3.seconds)
     val cachedLoc = implicitly[Location]
     try {
       valueOf(IO.pure(5).guaranteeCase(_ => long))
@@ -187,7 +183,7 @@ class MUnitValueExtractorsTest
 
   test("valueOf[Future] should fail if the Future times out") {
     def sleepFor(fd: FiniteDuration) = Future(Thread.sleep(fd.toMillis)).as(5)
-    val cachedLoc                    = implicitly[Location]
+    val cachedLoc = implicitly[Location]
     try {
       valueOf(sleepFor(10.seconds))
       fail("Should have failed")
