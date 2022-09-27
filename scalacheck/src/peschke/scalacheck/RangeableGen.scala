@@ -6,30 +6,27 @@ import cats.data.NonEmptyList
 import cats.data.NonEmptyVector
 import org.scalacheck.Gen
 
-/** A typeclass to define how to lift repeated values from a `Gen[A]` into some
-  * other type.
+/** A typeclass to define how to lift repeated values from a `Gen[A]` into some other type.
   *
   * @tparam A
   *   the source type, which will be the elements of the resulting value
   * @tparam B
-  *   the destination type, usually a collection of some sort, though not
-  *   parameterized because [[scala.Predef.String]] is also handy.
+  *   the destination type, usually a collection of some sort, though not parameterized because [[scala.Predef.String]]
+  *   is also handy.
   */
 trait RangeableGen[A, B] {
 
-  /** Lift a [[org.scalacheck.Gen]] of `A` to an [[org.scalacheck.Gen]] of `B`
-    * by repeated application.
+  /** Lift a [[org.scalacheck.Gen]] of `A` to an [[org.scalacheck.Gen]] of `B` by repeated application.
     *
     * @param count
-    *   the length of the resulting `B` is generated from `count`. Non-int
-    *   [[Range]] isn't supported because collection lengths must be ints.
+    *   the length of the resulting `B` is generated from `count`. Non-int [[Range]] isn't supported because collection
+    *   lengths must be ints.
     * @param ga
     *   Used to generate the parts of the resulting `B`
     */
   def lift(count: Range, ga: Gen[A]): Gen[B]
 
-  /** Use this [[RangeableGen]] to produce another [[RangeableGen]], via a
-    * mapping function.
+  /** Use this [[RangeableGen]] to produce another [[RangeableGen]], via a mapping function.
     */
   def map[C](gb2gc: B => C): RangeableGen[A, C] = lift(_, _).map(gb2gc)
 }
@@ -51,9 +48,9 @@ object RangeableGen {
       for {
         head <- ga
         tail <- Combinators.listOfR(
-                  count.start + count.step to count.last by count.step,
-                  ga
-                )
+          count.start + count.step to count.last by count.step,
+          ga
+        )
       } yield NonEmptyList(head, tail)
 
   implicit def liftToNonEmptyChain[A]: RangeableGen[A, NonEmptyChain[A]] =
@@ -61,9 +58,9 @@ object RangeableGen {
       for {
         head <- ga
         tail <- Combinators.chainOfR(
-                  count.start + count.step to count.last by count.step,
-                  ga
-                )
+          count.start + count.step to count.last by count.step,
+          ga
+        )
       } yield NonEmptyChain.fromChainPrepend(head, tail)
 
   implicit def liftToNonEmptyVector[A]: RangeableGen[A, NonEmptyVector[A]] =

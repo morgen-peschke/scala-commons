@@ -18,12 +18,13 @@ class NumericRangeGensLongTest extends PropSpec {
     NumericRangeGens.exclusiveNumericRanges(_, _).map(PrettyRange(_))
   val numericRanges: (Long, Long) => Gen[PrettyRange[Long]] =
     NumericRangeGens.numericRanges(_, _).map(PrettyRange(_))
-  val chooseNumeric: PrettyRange[Long] => Gen[Long] = pr =>
-    NumericRangeGens.chooseNumeric(pr.range)
+  val chooseNumeric: PrettyRange[Long] => Gen[Long] = pr => NumericRangeGens.chooseNumeric(pr.range)
   val withinNumeric: PrettyRange[Long] => Gen[PrettyRange[Long]] =
     pr => NumericRangeGens.slices(pr.range).map(PrettyRange(_))
 
-  property("NumericRangeGens[Long].inclusiveNumericRanges should produce ranges entirely contained within min and max") {
+  property(
+    "NumericRangeGens[Long].inclusiveNumericRanges should produce ranges entirely contained within min and max"
+  ) {
     forAll(bounds.flatMap(b => inclusiveNumericRanges.tupled(b).map(b -> _))) {
       case ((start, end), PrettyRange(range)) =>
         range.start must be >= start
@@ -33,7 +34,9 @@ class NumericRangeGensLongTest extends PropSpec {
     }
   }
 
-  property("NumericRangeGens[Long].exclusiveNumericRanges should produce ranges entirely contained within min and max") {
+  property(
+    "NumericRangeGens[Long].exclusiveNumericRanges should produce ranges entirely contained within min and max"
+  ) {
     forAll(bounds.flatMap(b => exclusiveNumericRanges.tupled(b).map(b -> _))) {
       case ((start, end), PrettyRange(range)) =>
         range.start must be >= start
@@ -44,12 +47,11 @@ class NumericRangeGensLongTest extends PropSpec {
   }
 
   property("NumericRangeGens[Long].numericRanges should produce ranges entirely contained within min and max") {
-    forAll(bounds.flatMap(b => numericRanges.tupled(b).map(b -> _))) {
-      case ((start, end), PrettyRange(range)) =>
-        range.start must be >= start
-        if (range.nonEmpty) {
-          range.last must be <= end
-        }
+    forAll(bounds.flatMap(b => numericRanges.tupled(b).map(b -> _))) { case ((start, end), PrettyRange(range)) =>
+      range.start must be >= start
+      if (range.nonEmpty) {
+        range.last must be <= end
+      }
     }
   }
 
@@ -66,11 +68,10 @@ class NumericRangeGensLongTest extends PropSpec {
         b <- Gen.chooseNum(Long.MaxValue - 10L, Long.MaxValue)
       } yield (a, b, "really long ranges")
 
-    forAll(Gen.oneOf(closeToMax, reallyLong)) {
-      case (start, end, _) =>
-        val gen    = numericRanges(start, end)
-        val values = List.fill(10)(gen.sample.value)
-        Inspectors.forAll(values)(_.range.length)
+    forAll(Gen.oneOf(closeToMax, reallyLong)) { case (start, end, _) =>
+      val gen = numericRanges(start, end)
+      val values = List.fill(10)(gen.sample.value)
+      Inspectors.forAll(values)(_.range.length)
     }
   }
 
@@ -83,7 +84,7 @@ class NumericRangeGensLongTest extends PropSpec {
 
   property("NumericRangeGens[Long].inclusiveNumericRanges should act appropriately for problematic input") {
     forAll(problematicBounds) { (start, end) =>
-      val gen    = inclusiveNumericRanges(start, end)
+      val gen = inclusiveNumericRanges(start, end)
       val values = List.fill(10)(gen.sample.value)
       Inspectors.forAll(values)(_.range.length)
     }
@@ -91,7 +92,7 @@ class NumericRangeGensLongTest extends PropSpec {
 
   property("NumericRangeGens[Long].exclusiveNumericRanges should act appropriately for problematic input") {
     forAll(problematicBounds) { (start, end) =>
-      val gen    = exclusiveNumericRanges(start, end)
+      val gen = exclusiveNumericRanges(start, end)
       val values = List.fill(10)(gen.sample.value)
       Inspectors.forAll(values)(_.range.length)
     }
@@ -103,9 +104,11 @@ class NumericRangeGensLongTest extends PropSpec {
     numericRanges(Long.MinValue / 2L, Long.MaxValue / 2L)
   // .map(r => if (r.range.step < 0L) r.copy(range = r.range.reverse) else r)
 
-  property("NumericRangeGens[Long].chooseNumeric should produce elements entirely contained within the provided range") {
-    forAll(arbitraryRanges.flatMap(r => chooseNumeric(r).map(r -> _))) {
-      case (PrettyRange(range), i) => range.contains(i) mustBe true
+  property(
+    "NumericRangeGens[Long].chooseNumeric should produce elements entirely contained within the provided range"
+  ) {
+    forAll(arbitraryRanges.flatMap(r => chooseNumeric(r).map(r -> _))) { case (PrettyRange(range), i) =>
+      range.contains(i) mustBe true
     }
   }
 
