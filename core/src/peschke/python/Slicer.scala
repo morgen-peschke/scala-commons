@@ -21,25 +21,24 @@ object Slicer {
 
   /** Return the indices described by `slice`
     *
-    * Should return identical results as
-    * `slice(start,end,step).indices(maxIndex)` and conform to g*
+    * Should return identical results as `slice(start,end,step).indices(maxIndex)` and conform to g*
     * https://docs.python.org/dev/library/stdtypes.html#sequence-types-list-tuple-range
     */
   def indices(slice: Slice, maxIndex: Long): NumericRange[Long] = {
-    val step     = slice.step
+    val step = slice.step
     val reversed = step < 0
 
     val start =
       slice
         .startOpt
-        .map { s => (if (s >= 0L) s else maxIndex + s).max(0L) }
+        .map(s => (if (s >= 0L) s else maxIndex + s).max(0L))
         .getOrElse(if (reversed) maxIndex - 1L else 0L)
         .min(if (reversed) maxIndex - 1 else maxIndex)
 
     val end =
       slice
         .endOpt
-        .map { e => (if (e >= 0L) e else maxIndex + e).max(-1L) }
+        .map(e => (if (e >= 0L) e else maxIndex + e).max(-1L))
         .getOrElse(if (reversed) -1L else maxIndex)
         .min(if (reversed) maxIndex - 1 else maxIndex)
 
@@ -47,8 +46,7 @@ object Slicer {
   }
 
   object syntax {
-    implicit final class SlicerOps[C[_], E](private val ce: C[E])
-        extends AnyVal {
+    implicit final class SlicerOps[C[_], E](private val ce: C[E]) extends AnyVal {
       def in(slice: Slice)(implicit S: Slicer[C]): C[E] = S.in(slice, ce)
     }
   }
@@ -60,13 +58,12 @@ object Slicer {
       else {
         val combine: (Chain[A], A) => Chain[A] =
           if (indexes.step < 0) (_: Chain[A]).prepend(_: A)
-          else (_:                  Chain[A]).append(_: A)
+          else (_: Chain[A]).append(_: A)
 
         @tailrec
-        def loop(pending: Chain[A], accum: Chain[A], currentIndex: Long)
-          : Chain[A] =
+        def loop(pending: Chain[A], accum: Chain[A], currentIndex: Long): Chain[A] =
           pending.uncons match {
-            case None => accum
+            case None                                                    => accum
             case Some((element, rest)) if indexes.contains(currentIndex) =>
               loop(rest, combine(accum, element), currentIndex + 1L)
 

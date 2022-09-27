@@ -65,8 +65,7 @@ class syntaxTest extends TableSpec {
   }
 
   "Validated.andThenF" should {
-    val t
-      : TableFor2[Validated[String, Int], Int => Option[Validated[String, Int]]] =
+    val t: TableFor2[Validated[String, Int], Int => Option[Validated[String, Int]]] =
       Table[Validated[String, Int], Int => Option[Validated[String, Int]]](
         ("input", "function"),
         (5.valid, _.valid.some),
@@ -77,26 +76,25 @@ class syntaxTest extends TableSpec {
         ("hi".invalid, _ => none)
       )
 
-    "behave the same way as flatTraverse does for Either" in forAll(t) {
-      (validatedInput, validatedFunction) =>
-        val eitherInput: Either[String, Int] = validatedInput.toEither
-        val eitherFunction: Int => Option[Either[String, Int]] =
-          validatedFunction(_).map(_.toEither)
+    "behave the same way as flatTraverse does for Either" in forAll(t) { (validatedInput, validatedFunction) =>
+      val eitherInput: Either[String, Int] = validatedInput.toEither
+      val eitherFunction: Int => Option[Either[String, Int]] =
+        validatedFunction(_).map(_.toEither)
 
-        val validatedOutput = validatedInput.andThenF(validatedFunction)
-        val eitherOutput    = eitherInput.flatTraverse(eitherFunction)
+      val validatedOutput = validatedInput.andThenF(validatedFunction)
+      val eitherOutput = eitherInput.flatTraverse(eitherFunction)
 
-        validatedOutput.map(_.toEither) mustBe eitherOutput
-        eitherOutput.map(_.toValidated) mustBe validatedOutput
+      validatedOutput.map(_.toEither) mustBe eitherOutput
+      eitherOutput.map(_.toValidated) mustBe validatedOutput
     }
   }
 
   "Order.builder" should {
     "add subsequent instances as tiebreakers, in the correct order" in {
-      val onlyS  = Order.by[Foo, String](_.s)
-      val onlyI  = Order.builder[Foo].by(_.i).build
+      val onlyS = Order.by[Foo, String](_.s)
+      val onlyI = Order.builder[Foo].by(_.i).build
       val onlyIS = Order.builder[Foo].by(_.i).andThen(onlyS).build
-      val all    = Order.builder[Foo].by(_.i).by(_.s).by(_.c).build
+      val all = Order.builder[Foo].by(_.i).by(_.s).by(_.c).build
 
       onlyI.comparison(
         Foo(4, "a", 'b'),
@@ -171,10 +169,10 @@ class syntaxTest extends TableSpec {
 
   "Eq.builder" should {
     "require all instances to agree something is equal to return true" in {
-      val onlyS  = Eq.by[Foo, String](_.s)
-      val onlyI  = Eq.builder[Foo].by(_.i).build
+      val onlyS = Eq.by[Foo, String](_.s)
+      val onlyI = Eq.builder[Foo].by(_.i).build
       val onlyIS = Eq.builder[Foo].by(_.i).and(onlyS).build
-      val all    = Eq.builder[Foo].by(_.i).by(_.s).by(_.c).build
+      val all = Eq.builder[Foo].by(_.i).by(_.s).by(_.c).build
 
       onlyI.eqv(Foo(4, "a", 'a'), Foo(3, "a", 'a')) mustBe false
       onlyI.eqv(Foo(4, "a", 'a'), Foo(4, "z", 'z')) mustBe true

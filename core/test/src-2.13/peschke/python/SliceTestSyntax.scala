@@ -11,8 +11,7 @@ import peschke.python.SliceTestSyntax.SliceParserTestSyntax
 import scala.language.implicitConversions
 
 trait SliceTestSyntax {
-  implicit def enableScalaCommonsSliceParserTestSyntax(raw: String)
-    : SliceParserTestSyntax =
+  implicit def enableScalaCommonsSliceParserTestSyntax(raw: String): SliceParserTestSyntax =
     new SliceParserTestSyntax(raw)
 }
 object SliceTestSyntax extends EitherValues {

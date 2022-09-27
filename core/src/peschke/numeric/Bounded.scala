@@ -2,17 +2,16 @@ package peschke.numeric
 
 /** Provides the maximum and minimum values for a bounded type.
   *
-  * This comes in handy for things like generators, and is not provided by
-  * [[Numeric]] or [[Integral]]
+  * This comes in handy for things like generators, and is not provided by [[Numeric]] or [[Integral]]
   */
 trait Bounded[A] {
   def maximum: A
   def minimum: A
 }
-object Bounded {
-  def apply[A](implicit A: Bounded[A]):   A.type = A
-  def minimum[A](implicit A: Bounded[A]): A      = A.minimum
-  def maximum[A](implicit A: Bounded[A]): A      = A.maximum
+object Bounded   {
+  def apply[A](implicit A: Bounded[A]): A.type = A
+  def minimum[A](implicit A: Bounded[A]): A = A.minimum
+  def maximum[A](implicit A: Bounded[A]): A = A.maximum
 
   def from[A](min: A, max: A): Bounded[A] = new Bounded[A] with Serializable {
     override val maximum: A = max
